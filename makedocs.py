@@ -10,9 +10,12 @@
 import sys
 import os
 import re
+import yaml
+import re
 import argparse
-import inspect
-import mydocstring
+from importlib import import_module # Dynamic module import
+import inspect                      # Find functions/classes in package
+import mydocstring                  # Parsing docstrings
 
 class docParser:
     def __init__(self, file):
@@ -46,7 +49,7 @@ class docParser:
 def parse_input_args():
 
     # Allowed action options
-    allowed_action = ["initialize", "document"]
+    allowed_action = ["init", "document"]
 
     import argparse
     parser = argparse.ArgumentParser("Creating qmd documentation from python package")
@@ -58,6 +61,9 @@ def parse_input_args():
             help = "Name of the output directory to store the qmd file")
     parser.add_argument("--overwrite", default = False, action = "store_true",
             help = "Only used if action = create; will overwrite _quarto.yml if needed.")
+    parser.add_argument("--references_dir", type = str, default = "references",
+            help = "Folder to store the function/class reference qmds, " + \
+                    "ceated inside the --output_dir folder. Must start with [A-Za-z].")
 
     # Parsing input args
     args = parser.parse_args()
@@ -70,7 +76,6 @@ def parse_input_args():
     if args.package is None:
         parser.print_help()
         sys.exit("\nUsage error: argument -p/--package must be set.")
-    elif 
 
     ymlfile = f"{args.output_dir}/_quarto.yml"
     if args.action == "create" and isfile(ymlfile):
@@ -80,7 +85,71 @@ def parse_input_args():
                 "already exists. Remove folder \"{args.output_dir}\" or use " + \
                 "--overwrite; be aware, will overwrite the existing \"{ymlfile}\".")
 
+    if not re.match("^[A-Za-z]", args.references_dir):
+        parser.print_help()
+        sys.exit(f"\nUsage error: references_dir must start with [A-Za-z].")
+
     return args
+
+
+def create_quarto_yml(args):
+    import os
+    ymlfile = f"{args.output_dir}/_quarto.yml"
+
+    if args.action == "init":
+        # If yml already exists and overwrite = False, error
+        if os.path.isfile(ymlfile) and not args.overwrite:
+            raise Exception("action = {args.action}, overwrite = {args.overwrite} " + \
+                    "but file \"{ymlfile}\" already exists; stop!")
+
+        # If output directory does not yet exist, create.
+        if not os.path.isdir(args.output_dir):
+            try:
+                os.makedirs(args.output_dir)
+            except:
+                raise Exception(f"Unable to create output folder \"{args.output_dir}\"")
+
+        # Content of the yml file
+        ymlcontent = {"project":
+                            {"type": "website"},
+                      "website": [
+                          {"title": f"{args.package} documentation"},
+                          {"navbar":
+                              {"left":
+                                [{"href": "index.qmd", "text": "Home"},
+                                 "about.qmd"]
+                              },
+                          }
+                      ], # End Website
+                      "format":
+                          {"html":
+                                  [{"theme": "cosmo",
+                                    "css": "style.css",
+                                    "toc": "true"}]
+                          } # end html
+                      }
+
+        # Else create (overwrite) the file
+        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(ymlcontent))
+
+    # Else (not init): Ensure the output folder and the yml file exists, else
+    # init must be used.
+    else:
+        if not os.path.isdir(outdir):
+            raise Exception(f"Output folder \"{outdir}\" does not exist. " + \
+                    "You may first need to call the script with action = init")
+        elif not os.path.isfile(ymlfile):
+            raise Exception(f"yml file \"{ymlfile}\" does not exist. " + \
+                    "You may first need to call the script with action = init")
+
+    # Create references dir if not existing
+    refdir = os.path.join(args.output_dir, args.references_dir)
+    if not os.path.isdir(refdir):
+        try:
+            os.makedirs(refdir)
+        except Exception as e:
+            raise Exception(e)
+
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -88,14 +157,20 @@ if __name__ == "__main__":
 
     # Parsing user args
     args = parse_input_args()
-    print(args)
-    sys.exit(3)
 
+    # If args.action is init, crate _quarto.yml
+    create_quarto_yml(args)
 
-    import colorspace
+    # Trying to import the module
+    try:
+        pkg = import_module(args.package)
+    except Exception as e:
+        raise Exception(e)
+
+    # Extracting functions and classes
     import inspect
-    funs = inspect.getmembers(colorspace, inspect.isfunction)
-    clss = inspect.getmembers(colorspace, inspect.isclass)
+    funs = inspect.getmembers(pkg, inspect.isfunction)
+    clss = inspect.getmembers(pkg, inspect.isclass)
 
     functions = [x[0] for x in funs]
     classes   = [x[0] for x in clss]
