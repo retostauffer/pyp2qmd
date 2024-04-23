@@ -84,9 +84,9 @@ def parse_input_args():
     if args.action == "create" and isfile(ymlfile):
         parser.print_help()
         sys.exit(f"\nUsage error: action is set to \"{args.action}\" " + \
-                "but file \"{ymlfile}\" " + \
-                "already exists. Remove folder \"{args.output_dir}\" or use " + \
-                "--overwrite; be aware, will overwrite the existing \"{ymlfile}\".")
+                 f"but the file \"{ymlfile}\" " + \
+                 f"already exists. Remove folder \"{args.output_dir}\" or use " + \
+                 f"--overwrite; be aware, will overwrite the existing \"{ymlfile}\".")
 
     if not re.match("^[A-Za-z]", args.references_dir):
         parser.print_help()
@@ -103,7 +103,7 @@ def create_quarto_yml(args):
         # If yml already exists and overwrite = False, error
         if os.path.isfile(ymlfile) and not args.overwrite:
             raise Exception(f"action = {args.action}, overwrite = {args.overwrite} " + \
-                    "but file \"{ymlfile}\" already exists; stop!")
+                    f"but file \"{ymlfile}\" already exists; stop!")
 
         # If output directory does not yet exist, create.
         if not os.path.isdir(args.output_dir):
@@ -132,8 +132,28 @@ def create_quarto_yml(args):
                           } # end html
                       }
 
+        content = {'project': {'type': 'website'},
+                   'website': {'title': args.package,
+                      'navbar': {'search': True,
+                          'right': [{'icon': 'github', 'href': 'https://github.com/dummy/entry', 'aria-label': 'gsdata GitHub'}]},
+                      'sidebar': {'collapse-level': 1,
+                         'contents': [{'text': 'Home', 'file': 'index.qmd'}]
+                      }
+                   }}
+                          #{'section': 'Reference',
+                          # 'contents': [{'text': 'API_GET', 'file': 'man/API_GET.qmd'},
+                          #  {'text': 'gs_baseurl', 'file': 'man/gs_baseurl.qmd'},
+                          #  {'text': 'gs_datasets', 'file': 'man/gs_datasets.qmd'},
+                          #  {'text': 'gs_gridded', 'file': 'man/gs_gridded.qmd'},
+                          #  {'text': 'gs_metadata', 'file': 'man/gs_metadata.qmd'},
+                          #  {'text': 'gs_stationdata', 'file': 'man/gs_stationdata.qmd'},
+                          #  {'text': 'gs_temporal_interval', 'file': 'man/gs_temporal_interval.qmd'},
+                          #  {'text': 'gsdata', 'file': 'man/gsdata.qmd'},
+                          #  {'text': 'show_http_status_and_terminate',
+                          #   'file': 'man/show_http_status_and_terminate.qmd'}]},
+
         # Else create (overwrite) the file
-        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(ymlcontent))
+        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
 
     # Else (not init): Ensure the output folder and the yml file exists, else
     # init must be used.
@@ -178,7 +198,7 @@ class manPage:
                    f"     <code id=\"gs_metadata_:_{arg.args[1]}\">{arg.args[1]}</code>\n" + \
                    "    </td>\n" + \
                    "    <td>\n" + \
-                   "      {arg.description}\n" + \
+                   f"      {arg.description}\n" + \
                    "    </td>\n" + \
                    "  </tr>\n"
         return res + "</table>"
@@ -205,9 +225,12 @@ class manPage:
             res += f"{self.ds_get('returns').type_name}: {self.ds_get('returns').description}"
 
         res += "\n\n### Examples\n\n"
-        res += "```{python3, warning=FALSE, message=FALSE, eval=TRUE}"
+        res += "```{python}\n"
+        res += "#| echo: true\n"
+        res += "#| error: true\n"
+        res += "#| warning: true\n"
         res += "\n".join([x.description for x in self.ds_get("examples")]).replace(">>>", "")
-        res += "\n```"
+        res += "\n#x\n```"
         res += "\n"
 
         return res
@@ -286,37 +309,41 @@ if __name__ == "__main__":
             
 
     fun = funs[1]
-    #doc = mydocstring.extract.PyExtract(inspect.getsource(fun[1])).extract(fun[0])
-    #doc = doc["docstring"]
 
-    #import docstring_parser
-    #res = docstring_parser.parse(doc, docstring_parser.DocstringStyle.GOOGLE)
-
-    #print(res.short_description)
-    #print(res.long_description)
-
-    #print(f"{res.returns.type_name}: {res.returns.description}")
-    #print([x.description for x in res.many_returns])
-    #print([x.description for x in res.examples])
-
-    #print([f"{x.args[1]}: {x.description}" for x in res.params])
-    #print([f"{x.type_name}: {x.description}" for x in res.raises])
-
-    #print([x.description for x in res.meta]) # meta ??
-
-
-    #sys.exit(3)
-
-    ###
-    #x = py2quarto(fun)
-    #print(x)
-
+    mans_created = []
     for fun in funs:
         man = py2quarto(fun)
         qmdfile = os.path.join(args.output_dir, args.references_dir, f"{fun[0]}.qmd")
         with open(qmdfile, "w+") as fid:
             print(man, file = fid)
+        mans_created.append(fun[0])
 
 
+    print(f"{mans_created=}")
+    
+    # Read and manipulate the yaml file
+    with open(f"{args.output_dir}/_quarto.yml", "r") as fid:
+        content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
 
+    import pprint
+    pprint.pprint(content)
+
+    tmp = {'section': 'Reference',
+           'contents': [{"text": x, "file": f"references/{x}.qmd"} for x in mans_created]}
+                          # 'contents': [{'text': 'API_GET', 'file': 'man/API_GET.qmd'},
+                          #  {'text': 'gs_baseurl', 'file': 'man/gs_baseurl.qmd'},
+                          #  {'text': 'gs_datasets', 'file': 'man/gs_datasets.qmd'},
+                          #  {'text': 'gs_gridded', 'file': 'man/gs_gridded.qmd'},
+                          #  {'text': 'gs_metadata', 'file': 'man/gs_metadata.qmd'},
+                          #  {'text': 'gs_stationdata', 'file': 'man/gs_stationdata.qmd'},
+                          #  {'text': 'gs_temporal_interval', 'file': 'man/gs_temporal_interval.qmd'},
+                          #  {'text': 'gsdata', 'file': 'man/gsdata.qmd'},
+                          #  {'text': 'show_http_status_and_terminate',
+                          #   'file': 'man/show_http_status_and_terminate.qmd'}]},
+
+    content["website"]["sidebar"]["contents"].append(tmp)
+
+    pprint.pprint(content)
+    with open(f"{args.output_dir}/_quarto.yml", "w+") as fid:
+        fid.write(yaml.dump(content))
 
