@@ -62,8 +62,8 @@ def parse_input_args():
             help = "Name of the output directory to store the qmd file")
     parser.add_argument("--overwrite", default = False, action = "store_true",
             help = "Only used if action = create; will overwrite _quarto.yml if needed.")
-    parser.add_argument("--references_dir", type = str, default = "references",
-            help = "Folder to store the function/class reference qmds, " + \
+    parser.add_argument("--man_dir", type = str, default = "man",
+            help = "Folder to store the function/class manuals qmds, " + \
                     "ceated inside the --output_dir folder. Must start with [A-Za-z].")
     parser.add_argument("--docstringstyle", type = str, default = "GOOGLE",
             help = "Docstring type (format).")
@@ -88,18 +88,25 @@ def parse_input_args():
                  f"already exists. Remove folder \"{args.output_dir}\" or use " + \
                  f"--overwrite; be aware, will overwrite the existing \"{ymlfile}\".")
 
-    if not re.match("^[A-Za-z]", args.references_dir):
+    if not re.match("^[A-Za-z]", args.man_dir):
         parser.print_help()
-        sys.exit(f"\nUsage error: references_dir must start with [A-Za-z].")
+        sys.exit(f"\nUsage error: man_dir must start with [A-Za-z].")
 
     return args
 
 
 def create_quarto_yml(args):
+    """
+
+    Returns:
+    bool: Returns `True` if the yml file is created the first time
+    by calling this function, else `False` (file did already exist).
+    """
     import os
     ymlfile = f"{args.output_dir}/_quarto.yml"
 
     if args.action == "init":
+        res = True
         # If yml already exists and overwrite = False, error
         if os.path.isfile(ymlfile) and not args.overwrite:
             raise Exception(f"action = {args.action}, overwrite = {args.overwrite} " + \
@@ -140,17 +147,6 @@ def create_quarto_yml(args):
                          'contents': [{'text': 'Home', 'file': 'index.qmd'}]
                       }
                    }}
-                          #{'section': 'Reference',
-                          # 'contents': [{'text': 'API_GET', 'file': 'man/API_GET.qmd'},
-                          #  {'text': 'gs_baseurl', 'file': 'man/gs_baseurl.qmd'},
-                          #  {'text': 'gs_datasets', 'file': 'man/gs_datasets.qmd'},
-                          #  {'text': 'gs_gridded', 'file': 'man/gs_gridded.qmd'},
-                          #  {'text': 'gs_metadata', 'file': 'man/gs_metadata.qmd'},
-                          #  {'text': 'gs_stationdata', 'file': 'man/gs_stationdata.qmd'},
-                          #  {'text': 'gs_temporal_interval', 'file': 'man/gs_temporal_interval.qmd'},
-                          #  {'text': 'gsdata', 'file': 'man/gsdata.qmd'},
-                          #  {'text': 'show_http_status_and_terminate',
-                          #   'file': 'man/show_http_status_and_terminate.qmd'}]},
 
         # Else create (overwrite) the file
         with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
@@ -158,6 +154,7 @@ def create_quarto_yml(args):
     # Else (not init): Ensure the output folder and the yml file exists, else
     # init must be used.
     else:
+        res = False
         if not os.path.isdir(args.output_dir):
             raise Exception(f"Output folder \"{args.output_dir}\" does not exist. " + \
                     "You may first need to call the script with action = init")
@@ -166,36 +163,124 @@ def create_quarto_yml(args):
                     "You may first need to call the script with action = init")
 
     # Create references dir if not existing
-    refdir = os.path.join(args.output_dir, args.references_dir)
+    refdir = os.path.join(args.output_dir, args.man_dir)
     if not os.path.isdir(refdir):
         try:
             os.makedirs(refdir)
         except Exception as e:
             raise Exception(e)
 
+    return res
+
+def update_quarto_yml(args, section, mans):
+
+    import yaml
+
+    assert isinstance(section, str)
+    assert isinstance(mans, list)
+    assert all([isinstance(x, str) for x in mans])
+    ymlfile = f"{args.output_dir}/_quarto.yml"
+
+    # Read existing 
+    with open(ymlfile, "r") as fid:
+        content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
+
+    # Dictionary to extend the content
+    tmp = {'section': section,
+           'contents': [{"text": x, "file": f"{args.man_dir}/{x}.qmd"} for x in mans]}
+
+    # Append and overwrite _quarto.yml with new content
+    content["website"]["sidebar"]["contents"].append(tmp)
+    with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+
 
 class manPage:
-    def __init__(self, docstringstyle, type, label, signature, docstring):
-        self._type = type
-        self._label = label
-        self._signature = signature
+    def __init__(self, package, typ, name, docstrings):
+        if not isinstance(package, str):
+            raise TypeError("argument `package` must be str (package name)")
+        if not isinstance(typ, str):
+            raise TypeError("argument `typ` must be str")
+        elif not typ in ["function", "class"]:
+            raise ValueError("argument `typ` must be \"function\" or \"class\"")
+        if not isinstance(name, str):
+            raise TypeError("argument `name` must be str (original class or function name)")
 
-        # Parsing docstring with docstring_parser, store
-        # parser on self._parsed; can be accessed via ds_get() (docstring get)
-        docstringstyle = getattr(docstring_parser.DocstringStyle, docstringstyle.upper())
-        self._parsed = docstring_parser.parse(docstring, docstringstyle)
+        # Store args
+        self._package    = package
+        self._name       = name
+        self._typ        = typ
+        self._docstrings = docstrings
 
-    def ds_get(self, attr):
+        # Checking docstrings input
+        self._check_docstrings_input(docstrings)
+
+    def _check_docstrings_input(self, x):
+        """_check_docstrings_input(x)
+
+        Checking user input when initializing object of class manPage
+
+        Args:
+            x: dictionary of dictionaries containing the Docstring extracted
+                via docstring_parser and the Signature extracted via inspect.
+
+        Returns:
+            No return, will throw errors if the user's input is incorrect.
+        """
+        arg = "docstrings"
+        if not isinstance(x, dict):
+            raise TypeError(f"argument `{arg}` must be dict")
+        for key,rec in x.items():
+            print(f"[DEVEL] input test for {key}")
+            if not isinstance(rec, dict):
+                raise TypeError(f"elements in `{arg}` must be dict")
+            elif not "docstring" in rec.keys() or not "signature" in rec.keys():
+                raise ValueError(f"dictionaries in `{arg}` must contain \"docstring\" and \"signature\"")
+            elif not isinstance(rec["docstring"], docstring_parser.common.Docstring):
+                raise TypeError(f"\"docstring\" must inherit docstring_parser.common.Docstring")
+            elif not isinstance(rec["signature"], inspect.Signature):
+                raise TypeError(f"\"signature\" must inherit inspect.Signature")
+
+    def get(self, attr, name = None):
+        """get(attr, name = None)
+
+        Args:
+            attr (str): attribute to extract from the docstring.
+            name (None, str): The function or class name for which the
+                attribute should be extracted. If None: name with which
+                the object has been initialized (main function/class).
+
+        Return:
+            Returns the attribute from the docstring, type depends on
+            what is stored in docstring_parser.common.Docstring.
+        """
+        if name is None: name = self._name
+        assert isinstance(name, str), "name must be string"
         assert isinstance(attr, str), "attr must be string"
-        return getattr(self._parsed, attr)
+        return getattr(self._docstrings[name]["docstring"], attr)
+
+    def signature(self, name = None):
+        """signature(name = None)
+
+        Args:
+            name (None, str): The function or class name for which the
+                attribute should be extracted. If None: name with which
+                the object has been initialized (main function/class).
+
+        Return:
+            (str) Returns signature as string.
+        """
+        if name is None: name = self._name
+        assert isinstance(name, str), "attr must be string"
+        return str(self._docstrings[name]["signature"]) # str(inspect.Signature)
 
     def _repr_args(self):
         res = "<table>\n"
-        for arg in self.ds_get("params"):
-            #print([f"{x.args[1]}: {x.description}" for x in res.params])
+        for arg in self.get("params"):
+            short_arg = re.search("^([\*\w]+)", arg.args[1]).group(1).replace("*", "")
+            # Building html table row
             res += "  <tr>\n" + \
                    "    <td style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
-                   f"     <code id=\"gs_metadata_:_{arg.args[1]}\">{arg.args[1]}</code>\n" + \
+                   f"     <code id=\"{self._package}_:_{short_arg}\">{arg.args[1]}</code>\n" + \
                    "    </td>\n" + \
                    "    <td>\n" + \
                    f"      {arg.description}\n" + \
@@ -204,36 +289,97 @@ class manPage:
         return res + "</table>"
 
     def __repr__(self):
-        res  = "## " + self.ds_get("short_description") + " {.unnumbered}\n\n"
+        res  = "## " + self.get("short_description") + " {.unnumbered}\n\n"
 
-        res += "### Description\n\n"
-        if self.ds_get("long_description"):
-            res += self.ds_get("long_description")
-        else:
-            res += "WARNING(long_description missing)"
+        if self.get("long_description"):
+            res += "### Description\n\n"
+            res += self.get("long_description")
+        #else:
+        #    res += "WARNING(long_description missing)"
 
         res += "\n\n### Usage\n\n"
         res += "<pre><code class='language-python'>" + \
-               f"{self._label}{self._signature}" + \
+               f"{self._name}{self.signature()}" + \
                "</code></pre>"
 
         res += "\n\n### Arguments\n\n"
         res += self._repr_args()
 
-        if self.ds_get("returns"):
+
+        if self.get("returns"):
             res += "\n\n### Return\n\n"
-            res += f"{self.ds_get('returns').type_name}: {self.ds_get('returns').description}"
+            res += f"{self.get('returns').description}"
 
         res += "\n\n### Examples\n\n"
         res += "```{python}\n"
         res += "#| echo: true\n"
         res += "#| error: true\n"
         res += "#| warning: true\n"
-        res += "\n".join([x.description for x in self.ds_get("examples")]).replace(">>>", "")
-        res += "\n#x\n```"
+        #res += "\n".join([x.description for x in self.get("examples")]).replace(r">>>\s+?", "")
+        tmp = "\n".join([x.description for x in self.get("examples")])
+        # Comment 'text' (can be included in the py example section)
+        tmp = re.sub(r"^(?!(>>>))", "## ", tmp, flags = re.MULTILINE)
+        # Removing empty lines
+        tmp = re.sub(r"^##\s+?$", "", tmp, flags = re.MULTILINE)
+        # Remove >>> code identifiers
+        res += re.sub(r"^>>>\s+?", "", tmp, flags = re.MULTILINE)
+        res += "\n```"
         res += "\n"
 
+        if self._typ == "class":
+            sys.exit(" --- append methods in stdout ---- ")
+
         return res
+
+# Testing a function
+def py2quarto(x):
+    """py2quarto(x)
+
+    Args:
+        x: tuple where the first element is a str, the second
+            element a function or class.
+    """
+    if not isinstance(x, tuple):
+        raise TypeError("argument `x` must be a tuple")
+    elif not len(x) == 2:
+        raise TypeError("tuple on argument `x` must be of length 2")
+    elif not isinstance(x[0], str):
+        raise TypeError("first element of tuple `x` must be str")
+
+    # Checking function or class
+    if not inspect.isfunction(x[1]) and not inspect.isclass(x[1]):
+        raise TypeError("second element of tuple `x` must be function or class")
+
+    def extract_docstrings(obj, style):
+        dstyle = getattr(docstring_parser.DocstringStyle, style.upper())
+
+        # Extract class docstring
+        docstrings = {}
+        class_docstring = docstring_parser.parse(inspect.getdoc(obj), dstyle)
+        if class_docstring:
+            docstrings[obj.__name__] = {"docstring": class_docstring,
+                                        "signature": inspect.signature(obj)}
+        
+        # Extract method/function docstrings
+        for name, func in inspect.getmembers(obj):
+            if not name.startswith('__') and inspect.isfunction(func):
+                sig = str(inspect.signature(func))
+                doc = docstring_parser.parse(inspect.getdoc(func), dstyle)
+                docstrings[name] = {"docstring": doc, "signature": sig}
+        
+        return docstrings
+
+    docstrings = extract_docstrings(x[1], args.docstringstyle)
+
+    # Generate manPage object
+    u = manPage(package    = args.package,
+                typ        = "function" if inspect.isfunction(x[1]) else "class",
+                name       = x[0],
+                docstrings = docstrings)
+
+    # Returning object of class manPageFunction or manPageClass
+    return u
+
 
 # -------------------------------------------------
 # -------------------------------------------------
@@ -243,7 +389,7 @@ if __name__ == "__main__":
     args = parse_input_args()
 
     # If args.action is init, crate _quarto.yml
-    create_quarto_yml(args)
+    yml_newly_created = create_quarto_yml(args)
 
     # Trying to import the module
     try:
@@ -260,90 +406,29 @@ if __name__ == "__main__":
     classes   = [x[0] for x in clss]
     print(f"{functions=}")
     print(f"{classes=}")
+    print("\n\n")
 
 
-    for fun in funs:
-        print(f"Function: {fun[0]}")
-        tmp = mydocstring.extract.PyExtract(inspect.getsource(fun[1]))
-    for cls in clss:
-        print(f"Class:    {cls[0]}")
-        for ff in inspect.getmembers(cls[1], inspect.isfunction):
-            if ff[0].startswith("_"):
-                print(f"    - ( {ff[0]} )")
-            else:
-                print(f"    - {ff[0]}")
+    #test = py2quarto(funs[0])
+    #test2 = py2quarto(clss[0])
+    #print(test)
+    #sys.exit(" ------ reto exit -----------")
 
-    # Testing a function
-    def py2quarto(x):
-        """py2quarto(x)
-
-        Args:
-            x: tuple where the first element is a str, the second
-                element a function or class.
-        """
-        if not isinstance(x, tuple):
-            raise TypeError("argument `x` must be a tuple")
-        elif not len(x) == 2:
-            raise TypeError("tuple on argument `x` must be of length 2")
-        elif not isinstance(x[0], str):
-            raise TypeError("first element of tuple `x` must be str")
-
-        # Checking function or class
-        if inspect.isfunction(x[1]):
-            obj = "function"
-        elif inspect.isclass(x[1]):
-            obj = "class"
-        else:
-            raise TypeError("second element of tuple `x` must be function or class")
-
-        # Get source code, extract docstring
-        extract = mydocstring.extract.PyExtract(inspect.getsource(x[1]))
-        doc = extract.extract(x[0])
-        from pprint import pprint
-        #pprint(doc)
-
-        u = manPage(args.docstringstyle, obj,
-                    doc["label"], doc["signature"], doc["docstring"])
-
-        return u
-            
-
-    fun = funs[1]
-
-    mans_created = []
+    # -------------------------------------------------
+    # Create man pages for functions
+    # -------------------------------------------------
+    man_func_created = []
     for fun in funs:
         man = py2quarto(fun)
-        qmdfile = os.path.join(args.output_dir, args.references_dir, f"{fun[0]}.qmd")
+        qmdfile = os.path.join(args.output_dir, args.man_dir, f"{fun[0]}.qmd")
         with open(qmdfile, "w+") as fid:
             print(man, file = fid)
-        mans_created.append(fun[0])
+        man_func_created.append(fun[0])
+    man_func_created.sort()
 
+    print(f"{man_func_created=}")
 
-    print(f"{mans_created=}")
-    
-    # Read and manipulate the yaml file
-    with open(f"{args.output_dir}/_quarto.yml", "r") as fid:
-        content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
-
-    import pprint
-    pprint.pprint(content)
-
-    tmp = {'section': 'Reference',
-           'contents': [{"text": x, "file": f"references/{x}.qmd"} for x in mans_created]}
-                          # 'contents': [{'text': 'API_GET', 'file': 'man/API_GET.qmd'},
-                          #  {'text': 'gs_baseurl', 'file': 'man/gs_baseurl.qmd'},
-                          #  {'text': 'gs_datasets', 'file': 'man/gs_datasets.qmd'},
-                          #  {'text': 'gs_gridded', 'file': 'man/gs_gridded.qmd'},
-                          #  {'text': 'gs_metadata', 'file': 'man/gs_metadata.qmd'},
-                          #  {'text': 'gs_stationdata', 'file': 'man/gs_stationdata.qmd'},
-                          #  {'text': 'gs_temporal_interval', 'file': 'man/gs_temporal_interval.qmd'},
-                          #  {'text': 'gsdata', 'file': 'man/gsdata.qmd'},
-                          #  {'text': 'show_http_status_and_terminate',
-                          #   'file': 'man/show_http_status_and_terminate.qmd'}]},
-
-    content["website"]["sidebar"]["contents"].append(tmp)
-
-    pprint.pprint(content)
-    with open(f"{args.output_dir}/_quarto.yml", "w+") as fid:
-        fid.write(yaml.dump(content))
+    # Adding Function references to _quarto.yml
+    if yml_newly_created and len(man_func_created) > 0:
+        update_quarto_yml(args, "Function reference", man_func_created)
 

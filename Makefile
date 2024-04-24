@@ -18,7 +18,6 @@ install:
 
 .PHONY: document
 document:
-	make install
 	venv/bin/python makedocs.py document -p colorspace
 
 distclean:
@@ -26,3 +25,8 @@ distclean:
 
 render:
 	(cd _quarto; quarto render)
+
+all:
+	make install
+	make document
+	make render

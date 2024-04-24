@@ -1,7 +1,12 @@
 
 
 
+# Python virtualenv
 /venv
-/docs
+
+# Quarto source and rendered content
 /_quarto
+
+# Test files and scripts by Reto
 /demo*
+/_*
