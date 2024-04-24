@@ -193,7 +193,7 @@ def update_quarto_yml(args, section, mans):
     import yaml
 
     assert isinstance(section, str)
-    assert isinstance(mans, list)
+    assert isinstance(mans, dict)
     assert all([isinstance(x, str) for x in mans])
     ymlfile = f"{args.output_dir}/_quarto.yml"
 
@@ -202,8 +202,10 @@ def update_quarto_yml(args, section, mans):
         content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
 
     # Dictionary to extend the content
-    tmp = {'section': section,
-           'contents': [{"text": x, "file": f"{args.man_dir}/{x}.qmd"} for x in mans]}
+    tmp = []
+    for key,val in mans.items():
+        tmp.append({"text": key, "file": val})
+    tmp = {"section": section, "contents": tmp}
 
     # Append and overwrite _quarto.yml with new content
     content["website"]["sidebar"]["contents"].append(tmp)
@@ -249,12 +251,14 @@ class manPage:
             print(f"[DEVEL] input test for {key}")
             if not isinstance(rec, dict):
                 raise TypeError(f"elements in `{arg}` must be dict")
-            elif not "docstring" in rec.keys() or not "signature" in rec.keys():
-                raise ValueError(f"dictionaries in `{arg}` must contain \"docstring\" and \"signature\"")
+            elif not "docstring" in rec.keys() or not "signature" in rec.keys() or not "module" in rec.keys():
+                raise ValueError(f"dictionaries in `{arg}` must contain \"docstring\", \"signature\", and \"module\"")
             elif not isinstance(rec["docstring"], docstring_parser.common.Docstring):
                 raise TypeError(f"\"docstring\" must inherit docstring_parser.common.Docstring")
             elif not isinstance(rec["signature"], inspect.Signature):
                 raise TypeError(f"\"signature\" must inherit inspect.Signature")
+            elif not isinstance(rec["module"], str):
+                raise TypeError(f"\"module\" must be str")
 
     def get(self, attr, name = None):
         """get(attr, name = None)
@@ -275,18 +279,23 @@ class manPage:
         res = getattr(self._docstrings[name]["docstring"], attr)
 
         if attr in ["short_description", "long_description"] and res is not None:
-            import re
-
-            # Replace sphinx refs with quarto refs
-            matches = re.findall(r":py:(?:func|class):`.*?`", res)
-            for m in matches:
-                print(f" >>>>>>>>>> {m}")
-                qmd = re.search("(\w+)(?=`)", m).group(1)
-                txt = re.search("`(.*?)(?=`)", m).group(1)
-                res = res.replace(m, f"[{txt}]({qmd}.qmd)")
-
+            res = self._fix_references(res)
 
         return res
+
+    def _fix_references(self, x):
+        import re
+
+        # Replace sphinx refs with quarto refs
+        matches = re.findall(r":py:(?:func|class):`.*?`", x)
+        for m in matches:
+            print(f" >>>>>>>>>> {m}")
+            ##qmd = re.search("`(.*?)(?=`)", m).group(1)
+            ##txt = re.search("`(.*?)(?=`)", m).group(1)
+            tmp = re.search("`(.*?)(?=`)", m).group(1)
+            x = x.replace(m, f"[{tmp}]({tmp}.qmd)")
+
+        return x
 
     def signature(self, name = None):
         """signature(name = None)
@@ -302,6 +311,24 @@ class manPage:
         if name is None: name = self._name
         assert isinstance(name, str), "attr must be string"
         return str(self._docstrings[name]["signature"]) # str(inspect.Signature)
+
+
+    def fullname(self, name = None):
+        """fullname(name = None)
+
+        Args:
+            name (None, str): The function or class name for which the
+                attribute should be extracted. If None: name with which
+                the object has been initialized (main function/class).
+
+        Return:
+            (str) Full module name/path without package name, e.g.
+            `colorlib.HCL` for function `HCL` in module `colorspace.colorlib`.
+        """
+        if name is None: name = self._name
+        assert isinstance(name, str), "attr must be string"
+        res = f"{str(self._docstrings[name]['module'])}.{name}"
+        return re.sub(f"^{self._package}\.", "", res)
 
     def _repr_args(self):
         res = "<dl class=\"pyp-list param-list\">\n"
@@ -326,7 +353,7 @@ class manPage:
 
         res += "\n\n### Usage\n\n"
         res += "<pre><code class='language-python'>" + \
-               f"{self._name}{self.signature()}" + \
+               f"{self.fullname()}{self.signature()}" + \
                "</code></pre>"
 
         # Function arguments
@@ -408,7 +435,8 @@ def py2quarto(x, include_hidden = False):
         class_docstring = docstring_parser.parse(inspect.getdoc(obj), dstyle)
         if class_docstring:
             docstrings[obj.__name__] = {"docstring": class_docstring,
-                                        "signature": inspect.signature(obj)}
+                                        "signature": inspect.signature(obj),
+                                        "module":    obj.__module__}
         
         # Extract method/function docstrings
         for name, func in inspect.getmembers(obj):
@@ -416,14 +444,16 @@ def py2quarto(x, include_hidden = False):
                 continue
             # Else check if is function
             if inspect.isfunction(func):
-                sig = inspect.signature(func)
                 try:
                     doc = docstring_parser.parse(inspect.getdoc(func), dstyle)
                 except Exception as e:
                     print(f"Problem extracting docstring from:   {name}")
                     raise Exception(e)
-                docstrings[name] = {"docstring": doc, "signature": sig}
+                docstrings[name] = {"docstring": doc,
+                                    "signature": inspect.signature(func),
+                                    "module":    func.__module__}
         
+
         return docstrings
 
     docstrings = extract_docstrings(x[1], args.docstringstyle, include_hidden)
@@ -477,14 +507,14 @@ if __name__ == "__main__":
     # -------------------------------------------------
     # Create man pages for functions
     # -------------------------------------------------
-    man_func_created = []
+    man_func_created = {}
     for fun in funs:
         man = py2quarto(fun, args.include_hidden)
-        qmdfile = os.path.join(args.output_dir, args.man_dir, f"{fun[0]}.qmd")
+        # TODO(R):
+        qmdfile = os.path.join(args.output_dir, args.man_dir, f"{man.fullname()}.qmd")
         with open(qmdfile, "w+") as fid:
             print(man, file = fid)
-        man_func_created.append(fun[0])
-    man_func_created.sort()
+        man_func_created[fun[0]] = f"{args.man_dir}/{os.path.basename(qmdfile)}"
     print(f"{man_func_created=}")
 
     # Adding Function references to _quarto.yml
@@ -494,18 +524,17 @@ if __name__ == "__main__":
     # -------------------------------------------------
     # Create man pages for classtions
     # -------------------------------------------------
-    man_class_created = []
+    man_class_created = {}
     for cls in clss:
         man = py2quarto(cls, args.include_hidden)
-        qmdfile = os.path.join(args.output_dir, args.man_dir, f"{cls[0]}.qmd")
+        qmdfile = os.path.join(args.output_dir, args.man_dir, f"{man.fullname()}.qmd")
         with open(qmdfile, "w+") as fid:
             print(man, file = fid)
-        man_class_created.append(cls[0])
-    man_class_created.sort()
+        man_class_created[cls[0]] = f"{args.man_dir}/{os.path.basename(qmdfile)}"
     print(f"{man_class_created=}")
 
-    test = py2quarto(clss[1])
-    print(test)
+    #test = py2quarto(clss[1])
+    #print(test)
 
     # Adding Function references to _quarto.yml
     if yml_newly_created and len(man_class_created) > 0:
