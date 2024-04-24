@@ -28,5 +28,5 @@ render:
 
 all:
 	make install
-	make document
+	make init
 	make render

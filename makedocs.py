@@ -183,6 +183,13 @@ dl.pyp-list {
         margin-left: 2em;
     }
 }
+div.cell-output-display {
+    margin: 1em 0;
+    padding: 0.5em 0.5em;
+    pre {
+        background-color: #e0e7ff;
+    }
+}
         """
         with open(scssfile, "w+") as fid:
             fid.write(content)
@@ -342,6 +349,45 @@ class manPage:
 
         return res + "</dl>"
 
+    def _repr_examples(self, x):
+        assert isinstance(x, str)
+        res = "```{python}\n" + \
+              "#| echo: true\n" + \
+              "#| error: true\n" + \
+              "#| warning: true\n" + \
+              x + \
+              "\n```\n\n"
+        return res
+
+    def _prepare_example(self, x):
+        """prepapre_example(x)
+ 
+        Args:
+            x (str): The example extracted from the docstring.
+ 
+        Return:
+        str : Modified example to be ready for quarto.
+        """
+        # Comment 'text' (can be included in the py example section)
+        x = re.sub(r"^(?!(>>>))", "## ", x, flags = re.MULTILINE)
+        # Removing empty lines
+        x = re.sub(r"^##\s+?$", "", x, flags = re.MULTILINE)
+        # Remove >>> code identifiers
+        x = re.sub(r"^>>>\s+?", "", x, flags = re.MULTILINE)
+        return x
+ 
+    def _split_example(self, x):
+        """split_example(x)
+ 
+        Args:
+            x: str, the example extracted from the docstring.
+ 
+        Return:
+        list: List of strings. If we find `#:` at the start of a line
+        we split the example at this position in multiple segments.
+        """
+        return re.split(r"\n(?=#:)", x, flags = re.MULTILINE)
+
     def __repr__(self):
         res  = "## " + self.get("short_description") + " {.unnumbered}\n\n"
 
@@ -384,23 +430,21 @@ class manPage:
                 res += f"    <dd>{tmp}</dd>\n"
             res += "</dl>\n"
 
-        res += "\n\n### Examples\n\n"
-        res += "```{python}\n"
-        res += "#| echo: true\n"
-        res += "#| error: true\n"
-        res += "#| warning: true\n"
+ 
+        # If we have examples:
+        if self.get("examples"):
+            examples = []
+            for tmp in [ex.description for ex in self.get("examples")]:
+                # Prepare example and possibly split it.
+                tmp       = self._prepare_example(tmp)
+                examples += self._split_example(tmp)
 
-        # Adjusting source code to be valid quarto python code
-        tmp = "\n".join([x.description for x in self.get("examples")])
-        # Comment 'text' (can be included in the py example section)
-        tmp = re.sub(r"^(?!(>>>))", "## ", tmp, flags = re.MULTILINE)
-        # Removing empty lines
-        tmp = re.sub(r"^##\s+?$", "", tmp, flags = re.MULTILINE)
-        # Remove >>> code identifiers
-        res += re.sub(r"^>>>\s+?", "", tmp, flags = re.MULTILINE)
-        res += "\n```"
-        res += "\n"
-
+            
+            res += "\n\n### Examples\n\n"
+            for tmp in examples:
+                res += self._repr_examples(tmp)
+            res += "\n"
+ 
         return res
 
 # Testing a function
@@ -498,6 +542,9 @@ if __name__ == "__main__":
     print(f"{classes=}")
     print("\n\n")
 
+    #test = py2quarto(funs[8])
+    #print(test)
+    #sys.exit(3)
 
     #test = py2quarto(funs[0])
     #test2 = py2quarto(clss[0])
@@ -520,6 +567,7 @@ if __name__ == "__main__":
     # Adding Function references to _quarto.yml
     if yml_newly_created and len(man_func_created) > 0:
         update_quarto_yml(args, "Function reference", man_func_created)
+
 
     # -------------------------------------------------
     # Create man pages for classtions
