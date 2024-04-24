@@ -67,6 +67,9 @@ def parse_input_args():
                     "ceated inside the --output_dir folder. Must start with [A-Za-z].")
     parser.add_argument("--docstringstyle", type = str, default = "GOOGLE",
             help = "Docstring type (format).")
+    parser.add_argument("--include_hidden", default = False, action = "store_true",
+            help = "If set, hidden functions and methods will also be documented " + \
+                    "(functions/methods starting with _ or __)")
 
     # Parsing input args
     args = parser.parse_args()
@@ -120,33 +123,17 @@ def create_quarto_yml(args):
                 raise Exception(f"Unable to create output folder \"{args.output_dir}\"")
 
         # Content of the yml file
-        ymlcontent = {"project":
-                            {"type": "website"},
-                      "website": [
-                          {"title": f"{args.package} documentation"},
-                          {"navbar":
-                              {"left":
-                                [{"href": "index.qmd", "text": "Home"},
-                                 "about.qmd"]
-                              },
-                          }
-                      ], # End Website
-                      "format":
-                          {"html":
-                                  [{"theme": "cosmo",
-                                    "css": "style.css",
-                                    "toc": "true"}]
-                          } # end html
-                      }
-
-        content = {'project': {'type': 'website'},
-                   'website': {'title': args.package,
-                      'navbar': {'search': True,
-                          'right': [{'icon': 'github', 'href': 'https://github.com/dummy/entry', 'aria-label': 'gsdata GitHub'}]},
-                      'sidebar': {'collapse-level': 1,
-                         'contents': [{'text': 'Home', 'file': 'index.qmd'}]
-                      }
-                   }}
+        content = {"project": {"type": "website"},
+                     "website": {"title": args.package,
+                        "navbar": {"search": True,
+                            "right": [{"icon": "github", "href": "https://github.com/dummy/entry", "aria-label": "gsdata GitHub"}]},
+                        "sidebar": {"collapse-level": 1,
+                           "contents": [{"text": "Home", "file": "index.qmd"}]
+                        }
+                     },
+                     "format": {"html": {"theme": ["quarto", "pyp.scss"]}},
+                     "execute": {"cache": True}
+                   }
 
         # Else create (overwrite) the file
         with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
@@ -171,6 +158,35 @@ def create_quarto_yml(args):
             raise Exception(e)
 
     return res
+
+
+def write_sass(args):
+    """
+    Write sass
+    """
+    import os
+    scssfile = f"{args.output_dir}/pyp.scss"
+    if not os.path.isfile(scssfile) or args.action == "init":
+        # Sorry, indent is important
+        content = """
+/*-- scss:defaults --*/
+// Base document colors
+$body-bg: white;
+$body-color: black;
+//$link-color: #75AADB;
+$link-color: #4287f5;
+
+/*-- scss:custom --*/
+// Styling of the <dl> lists
+dl.pyp-list {
+    dd {
+        margin-left: 2em;
+    }
+}
+        """
+        with open(scssfile, "w+") as fid:
+            fid.write(content)
+
 
 def update_quarto_yml(args, section, mans):
 
@@ -256,7 +272,21 @@ class manPage:
         if name is None: name = self._name
         assert isinstance(name, str), "name must be string"
         assert isinstance(attr, str), "attr must be string"
-        return getattr(self._docstrings[name]["docstring"], attr)
+        res = getattr(self._docstrings[name]["docstring"], attr)
+
+        if attr in ["short_description", "long_description"] and res is not None:
+            import re
+
+            # Replace sphinx refs with quarto refs
+            matches = re.findall(r":py:(?:func|class):`.*?`", res)
+            for m in matches:
+                print(f" >>>>>>>>>> {m}")
+                qmd = re.search("(\w+)(?=`)", m).group(1)
+                txt = re.search("`(.*?)(?=`)", m).group(1)
+                res = res.replace(m, f"[{txt}]({qmd}.qmd)")
+
+
+        return res
 
     def signature(self, name = None):
         """signature(name = None)
@@ -274,19 +304,16 @@ class manPage:
         return str(self._docstrings[name]["signature"]) # str(inspect.Signature)
 
     def _repr_args(self):
-        res = "<table>\n"
+        res = "<dl class=\"pyp-list param-list\">\n"
         for arg in self.get("params"):
             short_arg = re.search("^([\*\w]+)", arg.args[1]).group(1).replace("*", "")
             # Building html table row
-            res += "  <tr>\n" + \
-                   "    <td style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
-                   f"     <code id=\"{self._package}_:_{short_arg}\">{arg.args[1]}</code>\n" + \
-                   "    </td>\n" + \
-                   "    <td>\n" + \
-                   f"      {arg.description}\n" + \
-                   "    </td>\n" + \
-                   "  </tr>\n"
-        return res + "</table>"
+            res += "  <dt style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
+                   f"   <code id=\"{self._package}_:_{short_arg}\">{arg.args[1]}</code>\n" + \
+                   "  </dt>\n" + \
+                   f" <dd>{arg.description}</dd>\n"
+
+        return res + "</dl>"
 
     def __repr__(self):
         res  = "## " + self.get("short_description") + " {.unnumbered}\n\n"
@@ -302,20 +329,41 @@ class manPage:
                f"{self._name}{self.signature()}" + \
                "</code></pre>"
 
+        # Function arguments
         res += "\n\n### Arguments\n\n"
         res += self._repr_args()
 
-
+        # Return value
         if self.get("returns"):
             res += "\n\n### Return\n\n"
             res += f"{self.get('returns').description}"
+
+        # If is class, append methods
+        if self._typ == "class" and len(self._docstrings) > 1:
+
+            res += "\n\n### Methods\n\n"
+
+            res += "<dl class=\"pyp-list method-list\">\n"
+            for key,rec in self._docstrings.items():
+                # Skipping main class
+                if key == self._name: continue
+                res += "    <dt style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
+                       f"       <code>{key}{self.signature(key)}</code>\n    </dt>\n"
+                tmp = self.get('short_description', key)
+                if tmp is None:
+                    tmp = "WARNING(short_description missing)"
+                else:
+                    tmp = re.sub(f"^{key}", "", tmp)
+                res += f"    <dd>{tmp}</dd>\n"
+            res += "</dl>\n"
 
         res += "\n\n### Examples\n\n"
         res += "```{python}\n"
         res += "#| echo: true\n"
         res += "#| error: true\n"
         res += "#| warning: true\n"
-        #res += "\n".join([x.description for x in self.get("examples")]).replace(r">>>\s+?", "")
+
+        # Adjusting source code to be valid quarto python code
         tmp = "\n".join([x.description for x in self.get("examples")])
         # Comment 'text' (can be included in the py example section)
         tmp = re.sub(r"^(?!(>>>))", "## ", tmp, flags = re.MULTILINE)
@@ -326,18 +374,18 @@ class manPage:
         res += "\n```"
         res += "\n"
 
-        if self._typ == "class":
-            sys.exit(" --- append methods in stdout ---- ")
-
         return res
 
 # Testing a function
-def py2quarto(x):
+def py2quarto(x, include_hidden = False):
     """py2quarto(x)
 
     Args:
         x: tuple where the first element is a str, the second
             element a function or class.
+        include_hidden (bool): Defaults to `False`. If set,
+            hidden functions and methods (_*, __*) will also
+            be documented.
     """
     if not isinstance(x, tuple):
         raise TypeError("argument `x` must be a tuple")
@@ -345,12 +393,14 @@ def py2quarto(x):
         raise TypeError("tuple on argument `x` must be of length 2")
     elif not isinstance(x[0], str):
         raise TypeError("first element of tuple `x` must be str")
+    if not isinstance(include_hidden, bool):
+        raise TypeError("argument `include_hidden` must be boolean True or False")
 
     # Checking function or class
     if not inspect.isfunction(x[1]) and not inspect.isclass(x[1]):
         raise TypeError("second element of tuple `x` must be function or class")
 
-    def extract_docstrings(obj, style):
+    def extract_docstrings(obj, style, include_hidden):
         dstyle = getattr(docstring_parser.DocstringStyle, style.upper())
 
         # Extract class docstring
@@ -362,14 +412,21 @@ def py2quarto(x):
         
         # Extract method/function docstrings
         for name, func in inspect.getmembers(obj):
-            if not name.startswith('__') and inspect.isfunction(func):
-                sig = str(inspect.signature(func))
-                doc = docstring_parser.parse(inspect.getdoc(func), dstyle)
+            if not include_hidden and name.startswith("_"):
+                continue
+            # Else check if is function
+            if inspect.isfunction(func):
+                sig = inspect.signature(func)
+                try:
+                    doc = docstring_parser.parse(inspect.getdoc(func), dstyle)
+                except Exception as e:
+                    print(f"Problem extracting docstring from:   {name}")
+                    raise Exception(e)
                 docstrings[name] = {"docstring": doc, "signature": sig}
         
         return docstrings
 
-    docstrings = extract_docstrings(x[1], args.docstringstyle)
+    docstrings = extract_docstrings(x[1], args.docstringstyle, include_hidden)
 
     # Generate manPage object
     u = manPage(package    = args.package,
@@ -390,6 +447,9 @@ if __name__ == "__main__":
 
     # If args.action is init, crate _quarto.yml
     yml_newly_created = create_quarto_yml(args)
+
+    # Wirte sass
+    write_sass(args)
 
     # Trying to import the module
     try:
@@ -419,16 +479,35 @@ if __name__ == "__main__":
     # -------------------------------------------------
     man_func_created = []
     for fun in funs:
-        man = py2quarto(fun)
+        man = py2quarto(fun, args.include_hidden)
         qmdfile = os.path.join(args.output_dir, args.man_dir, f"{fun[0]}.qmd")
         with open(qmdfile, "w+") as fid:
             print(man, file = fid)
         man_func_created.append(fun[0])
     man_func_created.sort()
-
     print(f"{man_func_created=}")
 
     # Adding Function references to _quarto.yml
     if yml_newly_created and len(man_func_created) > 0:
         update_quarto_yml(args, "Function reference", man_func_created)
+
+    # -------------------------------------------------
+    # Create man pages for classtions
+    # -------------------------------------------------
+    man_class_created = []
+    for cls in clss:
+        man = py2quarto(cls, args.include_hidden)
+        qmdfile = os.path.join(args.output_dir, args.man_dir, f"{cls[0]}.qmd")
+        with open(qmdfile, "w+") as fid:
+            print(man, file = fid)
+        man_class_created.append(cls[0])
+    man_class_created.sort()
+    print(f"{man_class_created=}")
+
+    test = py2quarto(clss[1])
+    print(test)
+
+    # Adding Function references to _quarto.yml
+    if yml_newly_created and len(man_class_created) > 0:
+        update_quarto_yml(args, "Class reference", man_class_created)
 
