@@ -350,10 +350,10 @@ class manPage:
         if not isinstance(parent, type(None)) and not isinstance(parent, str):
             raise TypeError("argument `parent` must be None or str")
 
-        self._name   = name
-        self._obj    = obj
-        self._parent = parent
-        self._include_hidden = args.include_hidden
+        self._name           = name
+        self._obj            = obj
+        self._parent         = parent
+        self._args           = args
 
         self._doc, self._signature, self._module = \
                 extract_docstring(obj, args.docstringstyle, args.include_hidden)
@@ -412,7 +412,7 @@ class manPage:
             # requires three independent ifs here
             if rec[0].startswith("__"): continue
             if not inspect.isfunction(rec[1]) and not inspect.isclass(rec[1]): continue
-            if not self._include_hidden and rec[1].__name__.startswith("_"): continue
+            if not self._args.include_hidden and rec[1].__name__.startswith("_"): continue
             members.append((f"{self.fullname()}.{rec[0]}", rec[1]))
         return members
 
@@ -421,6 +421,15 @@ class manPage:
         if not hasattr(self._doc, attr):    return None
         else:                               return getattr(self._doc, attr)
 
+    def write_qmd(self):
+        from hashlib import sha256
+        qmd   = f"{self._args.man_dir}/{self.quartofile()}"
+        ofile = f"{self._args.output_dir}/{qmd}"
+
+        with open(ofile, "w+") as fid: print(self, file = fid)
+        
+        # Return name of the qmd; used for linking
+        return qmd
 
     def _repr_args(self):
 
@@ -671,10 +680,8 @@ if __name__ == "__main__":
     for name,func in functions.items():
         print(f"[DEVEL] Create man page function {name}")
         man = manPage(name, func, args)
-        qmd = f"{args.man_dir}/{man.quartofile()}"
-        with open(f"{args.output_dir}/{qmd}", "w+") as fid:
-            print(man, file = fid)
-        man_func_created[name] = qmd
+        man_func_created[name] = man.write_qmd()
+    print(f"{man_func_created=}")
 
     print(f"Number of function manuals created: {len(man_func_created)}")
 
@@ -691,10 +698,7 @@ if __name__ == "__main__":
     for name,cls in classes.items():
         print(f"[DEVEL] Create man page class {name}")
         man = manPage(name, cls, args)
-        qmd = f"{args.man_dir}/{man.quartofile()}"
-        with open(f"{args.output_dir}/{qmd}", "w+") as fid:
-            print(man, file = fid)
-        man_class_created[name] = qmd
+        man_class_created[name] = man.write_qmd()
 
         # Now do the same for all methods belonging to the current class (if any)
         for name,meth in man.getmembers():
@@ -702,10 +706,7 @@ if __name__ == "__main__":
             print(f"[DEVEL]   + method page for {name}")
             parent = re.sub(r"\.[^.]*$", "", man.fullname())
             m_man = manPage(name, meth, args, parent = parent)
-            m_qmd = f"{args.man_dir}/{m_man.quartofile()}"
-            with open(f"{args.output_dir}/{m_qmd}", "w+") as fid:
-                print(m_man, file = fid)
-            man_meth_created[name] = m_qmd
+            man_meth_created[name] = m_man.write_qmd()
     
 
     print(f"Number of class manuals created: {len(man_class_created)}")
@@ -713,5 +714,4 @@ if __name__ == "__main__":
     # Adding Function references to _quarto.yml
     if yml_newly_created and len(man_class_created) > 0:
         update_quarto_yml(args, "Class reference", man_class_created)
-
 
