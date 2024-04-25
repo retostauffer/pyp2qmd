@@ -1,0 +1,10 @@
+
+
+
+jupyter
+jupyter-cache
+matplotlib
+docstring_parser
+mydocstring
+pyyaml
+

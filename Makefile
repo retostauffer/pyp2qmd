@@ -1,11 +1,9 @@
 
 
 
-venv:
+venv: requirements.txt
 	virtualenv venv
-	venv/bin/python -m pip install ../python-colorspace
-	venv/bin/pip install pydocstring
-	venv/bin/pip install pyyaml
+	venv/bin/pip install -r requirements.txt
 
 clean:
 	-rm -rf _quarto/man
@@ -36,3 +34,4 @@ all:
 	make install
 	make init
 	make render
+
