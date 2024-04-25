@@ -132,7 +132,7 @@ def create_quarto_yml(args):
                         }
                      },
                      "format": {"html": {"theme": ["quarto", "pyp.scss"]}},
-                     "execute": {"cache": True}
+                     "execute": {"cache": True, "freeze": "auto"}
                    }
 
         # Else create (overwrite) the file
