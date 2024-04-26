@@ -181,7 +181,7 @@ def write_index(args):
         pyp2qmd (Python package documentation to quarto),
         converting the docstrings of all loaded functions
         and methods available via `{args.package}.*` into
-        quarto markdown files (`.qmd).
+        quarto markdown files (`.qmd`).
 
         ### Function reference
 
@@ -264,10 +264,10 @@ dl.pyp-list {
     }
 }
 div.cell-output-display {
-    margin: 1em 0;
-    padding: 0.5em 0.5em;
+    margin: 1rem 0;
     pre {
         background-color: #e0e7ff;
+        padding: 0.125rem 0.25rem;
     }
 }
         """
@@ -464,7 +464,7 @@ class manPage:
         # Given the signature, we should have the following parameters
         expected_args = list(self._signature.parameters.keys())
         # These are the available parameters (from the docstring)
-        documented_args = [x.arg_name for x in self.get("params")]
+        documented_args = [re.sub("^\*+", "", x.arg_name.strip()) for x in self.get("params")]
         # If self._parent is set this is the man page for a method.
         # if the first argument in list is 'self', remove.
         if self._parent and len(expected_args) > 0 and expected_args[0] == "self":
@@ -498,7 +498,7 @@ class manPage:
             res += "  <dt style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
                    f"   <code id=\"{self.fullname()}:{arg_name}\">{arg_name}</code>{arg_cls}\n" + \
                    "  </dt>\n" + \
-                   f" <dd>{self._adjust_references(arg.description)}</dd>\n"
+                   f" <dd>{self._add_references(arg.description)}</dd>\n"
 
         return res + "</dl>"
 
@@ -507,12 +507,12 @@ class manPage:
             res  = "---\ntitle: \"WARNING(short_description missing)\"\n---\n\n"
         else:
             res  = "---\ntitle: \"" + \
-                   self._adjust_references(self.get("short_description")) + \
+                   self._add_references(self.get("short_description")) + \
                    "\"\n---\n\n"
 
         if self.get("long_description"):
             res += "### Description\n\n"
-            res += self._adjust_references(self.get("long_description"))
+            res += self._add_references(self.get("long_description"))
         else:
             res += "WARNING(long_description missing)"
 
@@ -528,7 +528,7 @@ class manPage:
         # Return value
         if self.get("returns"):
             res += "\n\n### Return\n\n"
-            res += f"{self._adjust_references(self.get('returns').description)}"
+            res += f"{self._add_references(self.get('returns').description)}"
 
         # If is class, append methods
         if self.isclass():
@@ -569,22 +569,40 @@ class manPage:
  
         return res
 
-    def _adjust_references(self, x):
+    def _add_references(self, x):
         import re
         if x is None: return x
 
         # Replace sphinx refs with quarto refs
-        matches = re.findall(r":py:(?:func|class):`.*?`", x)
+        matches = re.findall(r":py:(?:func|class|method):`.*?`", x)
+
+        if len(matches) > 0:
+            print(" ======== ")
+            print(x)
+            print(matches)
+        # If any matches are found, set quarto references properly
         for m in matches:
             # Find basic match
-            tmp = re.search("`(.*?)(?=`)", m).group(1)
+            tmp = re.search("py:(\w+?):`(.*?)(?=`)", m)
             if tmp:
+                # Extact typ (func, class, or method) and the 'reference'
+                typ,ref = tmp.groups()
                 # If format is "name <ref>" we further decompose the match
-                tmp2 = re.match("^(.*)\s+?<(.*?)>$", tmp)
-                if tmp2:
-                    x = x.replace(m, f"[{tmp2.group(1)}]({tmp2.group(2)}.qmd)")
+                ref2 = re.match("^(.*)\s+?<(.*?)>$", ref)
+                # Take `text <link>` from the docstring
+                if ref2:
+                    x = x.replace(m, f"[{ref2.group(1)}]({ref2.group(2)}.qmd)")
+                # IF we only have a `word` we expect that it refers
+                # to it's current module OR its class (if typ == "method")
+                elif re.match("^\w+$", ref):
+                    if typ == "method":
+                        cls = re.sub(r"\.\w+?$", "", self.fullname())
+                        x   = x.replace(m, f"[{ref}]({cls}.{ref}.qmd)")
+                    else:
+                        x   = x.replace(m, f"[{ref}]({self._obj.__module__}.{ref}.qmd)")
+                # Else take whatever we got
                 else:
-                    x = x.replace(m, f"[{tmp}]({tmp}.qmd)")
+                    x = x.replace(m, f"[{ref}]({ref}.qmd)")
 
         return x
 
