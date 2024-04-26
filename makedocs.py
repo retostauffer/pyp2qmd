@@ -398,16 +398,20 @@ class manPage:
             else:
                 formatted_params.append(", ".join(tmp))  
                 tmp = [str(p)]
+
+        # First empty? Can happen if max_length very small
+        if len(formatted_params) > 0 and formatted_params[0] == "":
+            formatted_params = formatted_params[1:]
         # End   
         if len(tmp) > 0: formatted_params.append(", ".join(tmp))
             
-        spacers = "".join([" "] * len(name))
+        spacers = "".join([" "] * (len(name) + 1))
         return name + "(" + f",<br/>{spacers}".join(formatted_params) + ")"   
 
     def signature(self, remove_self = None, max_length = 200):
         assert isinstance(remove_self, type(None)) or isinstance(remove_self, bool)
         assert isinstance(max_length, int)
-        assert max_length > 20
+        assert max_length >= 0
         name = self._name
         # Remove ^parent. if self._parent is set
         if isinstance(self._parent, str):
@@ -518,7 +522,7 @@ class manPage:
 
         res += "\n\n### Usage\n\n"
         res += "<pre><code class='language-python'>" + \
-               f"{self.signature()}" + \
+               f"{self.signature(max_length = 50)}" + \
                "</code></pre>"
 
         # Function arguments
@@ -576,10 +580,6 @@ class manPage:
         # Replace sphinx refs with quarto refs
         matches = re.findall(r":py:(?:func|class|method):`.*?`", x)
 
-        if len(matches) > 0:
-            print(" ======== ")
-            print(x)
-            print(matches)
         # If any matches are found, set quarto references properly
         for m in matches:
             # Find basic match
@@ -612,7 +612,7 @@ class manPage:
               "#| echo: true\n" + \
               "#| error: true\n" + \
               "#| warning: true\n" + \
-              x + \
+              re.sub("^#:", "#", x, flags = re.MULTILINE) + \
               "\n```\n\n"
         return res
 
