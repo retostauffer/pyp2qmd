@@ -250,6 +250,15 @@ pre {
 
 // Styling of the <dl> lists
 dl.pyp-list {
+    dt {
+        code {
+            &.argument-class {
+                color: gray;
+                margin-left: 0.5em;
+                font-weight: 500;
+            }
+        }
+    }
     dd {
         margin-left: 2em;
     }
@@ -373,7 +382,7 @@ class manPage:
     def isfunction(self):
         return inspect.isfunction(self._obj)
 
-    def _format_signature(self, name, max_length = 50):
+    def _format_signature(self, name, max_length = 200, remove_self = False):
         """
         formatting of signature to get some line breaks in output
         """
@@ -382,6 +391,7 @@ class manPage:
         formatted_params = []
         tmp = []
         for k,p in self._signature.parameters.items():
+            if remove_self and k == "self": continue
             tmp_len = max(0, sum([len(x) for x in tmp]) + (len(tmp) - 1) * 2)
             if (tmp_len + len(str(p)) + 1) <= n:
                 tmp.append(str(p))
@@ -394,17 +404,21 @@ class manPage:
         spacers = "".join([" "] * len(name))
         return name + "(" + f",<br/>{spacers}".join(formatted_params) + ")"   
 
-    def signature(self, max_length = None):
+    def signature(self, remove_self = None, max_length = 200):
+        assert isinstance(remove_self, type(None)) or isinstance(remove_self, bool)
+        assert isinstance(max_length, int)
+        assert max_length > 20
         name = self._name
         # Remove ^parent. if self._parent is set
         if isinstance(self._parent, str):
             name = re.sub(f"^{self._parent}\.", "", self._name)
         else:
             name = self._name
+
+        if remove_self is None:
+            remove_self = self._parent is not None
         
-        if isinstance(max_length, int) and max_length > 20:
-            return self._format_signature(name)
-        return name + str(self._signature)
+        return self._format_signature(name, max_length, remove_self)
 
     def getmembers(self):
         members = []
@@ -451,6 +465,12 @@ class manPage:
         expected_args = list(self._signature.parameters.keys())
         # These are the available parameters (from the docstring)
         documented_args = [x.arg_name for x in self.get("params")]
+        # If self._parent is set this is the man page for a method.
+        # if the first argument in list is 'self', remove.
+        if self._parent and len(expected_args) > 0 and expected_args[0] == "self":
+            expected_args.remove("self")
+
+        # Check if any of the expected arguments is not documented
         missing_args = []
         for ea in expected_args:
             if not ea in documented_args:
@@ -462,23 +482,33 @@ class manPage:
                 res += f"<li>WARNING(missing argument definition \"{rec}\" in docstring)</li>"
             res += "</ul>"
 
-
         res += "<dl class=\"pyp-list param-list\">\n"
         for arg in self.get("params"):
-            short_arg = re.search("^([\*\w]+)", arg.args[1]).group(1).replace("*", "")
+            # If we get "argument (class)" we separate them
+            mtch = re.findall(r"^(.*)\((.*?)\)$", arg.args[1])
+            if len(mtch) > 0:
+                arg_name = mtch[0][0].strip()
+                arg_cls  = f"<code class=\"argument-class\">{mtch[0][1]}</code>"
+            else:
+                arg_name = arg.args[1].strip()
+                arg_cls  = ""
+
+            #short_arg = re.search("^([\*\w]+)", arg.args[1]).group(1).replace("*", "")
             # Building html table row
             res += "  <dt style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
-                   f"   <code id=\"packagename_:_{short_arg}\">{arg.args[1]}</code>\n" + \
+                   f"   <code id=\"{self.fullname()}:{arg_name}\">{arg_name}</code>{arg_cls}\n" + \
                    "  </dt>\n" + \
-                   f" <dd>{arg.description}</dd>\n"
+                   f" <dd>{self._adjust_references(arg.description)}</dd>\n"
 
         return res + "</dl>"
 
     def __repr__(self):
         if self.get("short_description") is None:
-            res  = "## WARNING(short_description missing) {.unnumbered}\n\n"
+            res  = "---\ntitle: \"WARNING(short_description missing)\"\n---\n\n"
         else:
-            res  = "## " + self.get("short_description") + " {.unnumbered}\n\n"
+            res  = "---\ntitle: \"" + \
+                   self._adjust_references(self.get("short_description")) + \
+                   "\"\n---\n\n"
 
         if self.get("long_description"):
             res += "### Description\n\n"
@@ -498,7 +528,7 @@ class manPage:
         # Return value
         if self.get("returns"):
             res += "\n\n### Return\n\n"
-            res += f"{self.get('returns').description}"
+            res += f"{self._adjust_references(self.get('returns').description)}"
 
         # If is class, append methods
         if self.isclass():
@@ -515,11 +545,9 @@ class manPage:
                 else:
                     short = m_man.get("short_description")
 
-                # Skipping main class (else infinite recursion)
-                #if key == self._name: continue
-                #link = ".".join([self.fullname(), re.search(r"[^.]+$", key).group(0)]) + ".qmd"
+                # Adding <dt><dd> for current method
                 link = m_man.quartofile()
-                text = re.sub(f"^{parent}\.", "", m_man.signature())
+                text = re.sub(f"^{parent}\.", "", m_man.signature(remove_self = True))
                 res += "    <dt style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
                        f"       <code>[{text}]({link})</code>\n    </dt>\n" + \
                        f"    <dd>{short}</dd>\n"
@@ -534,7 +562,6 @@ class manPage:
                 tmp       = self._prepare_example(tmp)
                 examples += self._split_example(tmp)
 
-            
             res += "\n\n### Examples\n\n"
             for tmp in examples:
                 res += self._repr_examples(tmp)
@@ -598,7 +625,11 @@ class manPage:
         list: List of strings. If we find `#:` at the start of a line
         we split the example at this position in multiple segments.
         """
-        return re.split(r"\n(?=#:)", x, flags = re.MULTILINE)
+        res = re.split(r"\n(?=#:)", x, flags = re.MULTILINE)
+        # Remove empty lines if any
+        for i in range(len(res)):
+            res[i] = re.sub("#:[\s+]?\n", "", res[i], flags = re.MULTILINE)
+        return res
 
 
 # Testing a function

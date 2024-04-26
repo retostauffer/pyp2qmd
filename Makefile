@@ -30,6 +30,10 @@ document:
 render:
 	(cd _quarto; quarto render)
 
+preview:
+	(cd _quarto; quarto preview)
+
+
 all:
 	make install
 	make init
