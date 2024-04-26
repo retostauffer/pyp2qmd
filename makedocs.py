@@ -422,11 +422,23 @@ class manPage:
         else:                               return getattr(self._doc, attr)
 
     def write_qmd(self):
-        from hashlib import sha256
+        import tempfile
+        import filecmp
+
         qmd   = f"{self._args.man_dir}/{self.quartofile()}"
         ofile = f"{self._args.output_dir}/{qmd}"
 
-        with open(ofile, "w+") as fid: print(self, file = fid)
+        if not os.path.isfile(ofile):
+            with open(ofile, "w+") as fid: print(self, file = fid)
+        else:
+            tmpfile = tempfile.NamedTemporaryFile()
+            with open(tmpfile.name, "w+") as fid: print(self, file = fid)
+            files_equal = filecmp.cmp(tmpfile.name, ofile)
+            # New file differs? Overwrite existing qmd. Re-write the file (not
+            # move the temporary file) to ensure correct file permissions.
+            if not files_equal:
+                with open(ofile, "w+") as fid: print(self, file = fid)
+            tmpfile.close()
         
         # Return name of the qmd; used for linking
         return qmd
