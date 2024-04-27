@@ -39,3 +39,5 @@ all:
 	make init
 	make render
 
+sync:
+	rsync -va _quarto/_site retostauffer:~/html/trash/ --delete

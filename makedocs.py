@@ -567,6 +567,7 @@ class manPage:
                 examples += self._split_example(tmp)
 
             res += "\n\n### Examples\n\n"
+            res += self._add_matplotlib_inline()
             for tmp in examples:
                 res += self._repr_examples(tmp)
             res += "\n"
@@ -632,6 +633,22 @@ class manPage:
         # Remove >>> code identifiers
         x = re.sub(r"^>>>\s+?", "", x, flags = re.MULTILINE)
         return x
+
+    def _add_matplotlib_inline(self):
+        """Add Matplotlib Line Option
+
+        Supressing warnings due to interactive mode when plotting.
+        A extra (silent) code chunk at the beginning of each Example section.
+        """
+        res = "```{python}\n" + \
+              "#| echo: false\n" + \
+              "#| error: true\n" + \
+              "#| warning: true\n" + \
+              "import matplotlib.pyplot as plt\n" + \
+              "%matplotlib inline\n" + \
+              "```\n\n"
+        return res
+
  
     def _split_example(self, x):
         """split_example(x)
