@@ -263,11 +263,31 @@ dl.pyp-list {
         margin-left: 2em;
     }
 }
-div.cell-output-display {
+
+// sourceCode cells
+div {
+    &.sourceCode {
+        background-color: #e0e7ff;
+        margin: 0.25rem 0;
+    }
+}
+
+// Output cells; identical style for .cell-output-display and .cell-output-stdout
+div.cell-output-display, div.cell-output-stdout {
     margin: 1rem 0;
     pre {
-        background-color: #e0e7ff;
+        background-color: #cecece;
         padding: 0.125rem 0.25rem;
+    }
+}
+
+// Styling raises section (exception documentation)
+ul.python-raises {
+    list-style: none;
+    padding-left: 0;
+    code {
+        font-family: monospace;
+        font-weight: 500;
     }
 }
         """
@@ -480,14 +500,20 @@ class manPage:
             if not ea in documented_args:
                 missing_args.append(ea)
 
+        # Counting number of warnings and/or arguments added
+        counter = 0
+
         if len(missing_args) > 0:
+            counter += 1
             res += "<ul>"
             for rec in missing_args:
                 res += f"<li>WARNING(missing argument definition \"{rec}\" in docstring)</li>"
             res += "</ul>"
 
+        # Count arguments
         res += "<dl class=\"pyp-list param-list\">\n"
         for arg in self.get("params"):
+            counter += 1
             # If we get "argument (class)" we separate them
             mtch = re.findall(r"^(.*)\((.*?)\)$", arg.args[1])
             if len(mtch) > 0:
@@ -504,7 +530,20 @@ class manPage:
                    "  </dt>\n" + \
                    f" <dd>{self._add_references(arg.description)}</dd>\n"
 
-        return res + "</dl>"
+        res += "</dl>"
+
+        # If no arguments or warnings have been added, return None
+        # such that we can skip to add the 'Arguments' section.
+        return None if counter == 0 else res
+
+
+    def __repr_raises(self):
+
+        res = "<ul class=\"python-raises\">\n"
+        for rec in self.get("raises"):
+            res += f"<li><code class=\"text-warning\">{rec.type_name}</code>: " + \
+                   f"{self._add_references(rec.description)}\n"
+        return res + "</ul>\n"
 
     def __repr__(self):
         if self.get("short_description") is None:
@@ -526,8 +565,9 @@ class manPage:
                "</code></pre>"
 
         # Function arguments
-        res += "\n\n### Arguments\n\n"
-        res += self._repr_args()
+        tmp = self._repr_args()
+        if tmp is not None:
+            res += "\n\n### Arguments\n\n" + tmp
 
         # Return value
         if self.get("returns"):
@@ -567,10 +607,15 @@ class manPage:
                 examples += self._split_example(tmp)
 
             res += "\n\n### Examples\n\n"
-            res += self._add_matplotlib_inline()
+            #####res += self._add_matplotlib_inline()
             for tmp in examples:
-                res += self._repr_examples(tmp)
+                res += self.__repr_examples(tmp)
             res += "\n"
+
+        # If has documented raises exception
+        if len(self.get("raises")) > 0:
+            res += "\n\n### Raises\n\n" + self.__repr_raises()
+
  
         return res
 
@@ -607,7 +652,7 @@ class manPage:
 
         return x
 
-    def _repr_examples(self, x):
+    def __repr_examples(self, x):
         assert isinstance(x, str)
         res = "```{python}\n" + \
               "#| echo: true\n" + \
