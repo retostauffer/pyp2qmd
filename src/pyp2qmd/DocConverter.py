@@ -93,7 +93,7 @@ class DocConverter:
     def __init_documentation(self):
 
         from os import makedirs
-        from os.path import join, isdir
+        from os.path import join, isdir, basename
         from shutil import copy
         from re import sub, match
         
@@ -131,10 +131,21 @@ class DocConverter:
                         "the package) does not exist; contact the mainainer")
             return file
 
+        # Adding _quarto.yml
         src = pkg_file(pkgname, "templates", "_quarto.yml")
         content = open(src, "r").read()
         content = sub("<title>", pkgname, content)
-        with open(join(self.config_get("output_dir"), "_quarto.yml"), "w") as fid:
+        with open(join(self.config_get("output_dir"), basename(src)), "w") as fid:
+            fid.write(content)
+        del src, content
+
+        # Adding index.qmd
+        from datetime import datetime as dt
+        src = pkg_file(pkgname, "templates", "index.qmd")
+        content = open(src, "r").read()
+        content = sub("<title>", pkgname, content)
+        content = sub("<date_and_time>", f"{dt.now():%Y-%m-%d %H:%M}", content)
+        with open(join(self.config_get("output_dir"), basename(src)), "w") as fid:
             fid.write(content)
         del src, content
 
