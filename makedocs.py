@@ -15,7 +15,6 @@ import re
 import argparse
 from importlib import import_module # Dynamic module import
 import inspect                      # Find functions/classes in package
-import mydocstring                  # Parsing functions and classes (extracting docstring)
 import docstring_parser             # Parsing docstring
 
 class docParser:
@@ -235,18 +234,20 @@ $link-color: #4287f5;
 
 /*-- scss:custom --*/
 
-// Usage code
+// pre code styling
 pre {
     code {
-        &.language-python {
+        padding: 0.25rem 0.75rem;
+        &.language-python {  
             white-space: pre;
             font-family: monospace;
             vertical-align: top;
-            color: $primary;
+            color: $primary; 
             font-weight: 500;
         }
     }
 }
+
 
 // Styling of the <dl> lists
 dl.pyp-list {
@@ -264,10 +265,12 @@ dl.pyp-list {
     }
 }
 
+
 // sourceCode cells
 div {
     &.sourceCode {
-        background-color: #e0e7ff;
+        background-color: rgba(233,236,239,.95) !important;
+        border: 1px solid rgba(233,236,239,.95) !important;
         margin: 0.25rem 0;
     }
 }
@@ -276,7 +279,8 @@ div {
 div.cell-output-display, div.cell-output-stdout {
     margin: 1rem 0;
     pre {
-        background-color: #cecece;
+        background-color: rgba(233,236,239,.55);
+        border: 1px solid rgba(233,236,239,.55);
         padding: 0.125rem 0.25rem;
     }
 }
@@ -410,6 +414,7 @@ class manPage:
         n = max_length - len(name) - 1
         formatted_params = []
         tmp = []
+
         for k,p in self._signature.parameters.items():
             if remove_self and k == "self": continue
             tmp_len = max(0, sum([len(x) for x in tmp]) + (len(tmp) - 1) * 2)
@@ -481,7 +486,7 @@ class manPage:
         # Return name of the qmd; used for linking
         return qmd
 
-    def _repr_args(self):
+    def __repr_args(self):
 
         res = ""
 
@@ -565,7 +570,7 @@ class manPage:
                "</code></pre>"
 
         # Function arguments
-        tmp = self._repr_args()
+        tmp = self.__repr_args()
         if tmp is not None:
             res += "\n\n### Arguments\n\n" + tmp
 
@@ -819,9 +824,11 @@ if __name__ == "__main__":
     man_class_created = {}
     man_meth_created  = {}
     for name,cls in classes.items():
-        print(f"[DEVEL] Create man page class {name}")
+        print(f"[DEVEL] Create man page for class {name}")
         man = manPage(name, cls, args)
         man_class_created[name] = man.write_qmd()
+        #if name == "qualitative_hcl":
+        #    sys.exit(0)
 
         # Now do the same for all methods belonging to the current class (if any)
         for name,meth in man.getmembers():
