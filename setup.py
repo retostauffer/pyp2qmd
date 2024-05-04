@@ -1,0 +1,43 @@
+# -------------------------------------------------------------------
+# `setup.py` for the small packages "python package to quarto
+# documentation" package.
+# -------------------------------------------------------------------
+
+from setuptools import setup, find_packages
+
+ISRELEASED  = False
+VERSION     = "0.0.1"
+
+setup(
+    name         = "pyp2qmd",
+    version      = VERSION,
+    author       = "Reto Stauffer",
+    author_email = "reto.stauffer@uibk.ac.at",
+    description  = "Parses docstrings of all exported classes and methods of a python package and turns them into quarto markdown (qmd) files. Alongside, a basic structure for a quarto website is created, intended to easily document your python package with quarto.",
+    long_description = open("README.md").read(),
+    long_description_content_type = "text/markdown",
+    url = "https://github.com/retostauffer/pyp2qmd",
+    project_urls = {
+        "GitHub Issues": "https://github.com/retostauffer/pyp2qmd/issues"
+    },
+    classifiers = [
+        "Development Status :: 2 - Pre-Alpha",
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GPL-2",
+        "Operating System :: OS Independent"
+    ],
+    install_requires = ["docstring_parser", "pyyaml"],
+    packages         = find_packages("src"),
+    package_dir      = {"": "src"},
+    package_data     = {"": ["data/*"]},
+    python_requires  = ">=3.8",
+    zip_safe         = False,
+
+    # Executables
+    entry_points = {
+        "console_scripts": [
+            "pyp2qmd = pyp2qmd.bin.pyp2qmd:main"
+        ]
+    }
+
+)

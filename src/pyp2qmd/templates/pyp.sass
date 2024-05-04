@@ -1,0 +1,69 @@
+/*-- scss:defaults --*/
+// Base document colors
+$body-bg: white;
+$body-color: black;
+$primary: #0d6efd;
+$link-color: #4287f5;
+
+/*-- scss:custom --*/
+
+// pre code styling
+pre {
+    code {
+        padding: 0.25rem 0.75rem;
+        &.language-python {  
+            white-space: pre;
+            font-family: monospace;
+            vertical-align: top;
+            color: $primary; 
+            font-weight: 500;
+        }
+    }
+}
+
+
+// Styling of the <dl> lists
+dl.pyp-list {
+    dt {
+        code {
+            &.argument-class {
+                color: gray;
+                margin-left: 0.5em;
+                font-weight: 500;
+            }
+        }
+    }
+    dd {
+        margin-left: 2em;
+    }
+}
+
+
+// sourceCode cells
+div {
+    &.sourceCode {
+        background-color: rgba(233,236,239,.95) !important;
+        border: 1px solid rgba(233,236,239,.95) !important;
+        margin: 0.25rem 0;
+    }
+}
+
+// Output cells; identical style for .cell-output-display and .cell-output-stdout
+div.cell-output-display, div.cell-output-stdout {
+    margin: 1rem 0;
+    pre {
+        background-color: rgba(233,236,239,.55);
+        border: 1px solid rgba(233,236,239,.55);
+        padding: 0.125rem 0.25rem;
+    }
+}
+
+// Styling raises section (exception documentation)
+ul.python-raises {
+    list-style: none;
+    padding-left: 0;
+    code {
+        font-family: monospace;
+        font-weight: 500;
+    }
+}

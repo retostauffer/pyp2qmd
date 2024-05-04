@@ -1,0 +1,11 @@
+execute:
+  cache: true
+  freeze: auto
+format:
+  html:
+    theme:
+    - quarto
+    - pyp.scss
+project:
+  type: website
+  title: <title>

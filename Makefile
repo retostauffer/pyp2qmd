@@ -1,5 +1,12 @@
 
 
+test:
+	-rm -rf _quarto
+	make install
+	pyp2qmd init -p pyp2qmd
+	tree _quarto/
+	cat _quarto/_quarto.yml
+
 
 venv: requirements.txt
 	virtualenv venv
@@ -20,6 +27,11 @@ init:
 	venv/bin/python makedocs.py init -p colorspace --overwrite
 
 install:
+	@echo "********* REMOVE AND REINSTALL PYTHON PACKAGE *********"
+	python setup.py clean --all && pip install -e .
+
+
+installcolorspace:
 	venv/bin/pip uninstall -y colorspace
 	venv/bin/python -m pip install ../python-colorspace
 

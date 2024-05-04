@@ -7,6 +7,14 @@
 # Quarto source and rendered content
 /_quarto
 
+# Ignore python cache
+__pycache__
+
 # Test files and scripts by Reto
 /demo*
 /_*
+/*.png
+/*.jpeg
+/*.svg
+/*.pdf
+/*.html
