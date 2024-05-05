@@ -10,11 +10,10 @@ def main():
     # Initialize DocConverter; creates _quarto.yml,
     # pyp.sass, and index.qmd if needed.
     docconv = DocConverter(config)
-
     print(docconv)
 
-    # Documenting classes only (testing)
-    docconv.document_classes()
+    docconv.document()
+    docconv.update_quarto_yml()
 
 if __name__ == "__main__":
     main()

@@ -7,7 +7,7 @@ class ManPage:
     Args:
         name (str): Name of the function, class, or method.
         obj (function or class): The function or class to be documented.
-        config (Config): Object of class :py:class:`Config`.
+        config (Config): Object of class :py:class:`Config <pyp2qmd.Config.Config>`.
         parent (None, str): `None` (default) if a class or function is documented.
             Used to document methods, in this case `parent` contains the name of
             the parent class as str.
@@ -65,7 +65,8 @@ class ManPage:
     def config_get(self, what):
         """Get Config Argument
 
-        Interfaces the `.get()` method of the :py:class:`Config` object.
+        Interfaces the `.get()` method of the
+        :py:class:`Config <pyp2qmd.Config.Config>` object.
 
         Args:
             what (str): Name of the attribute.
@@ -127,13 +128,15 @@ class ManPage:
 
 
     def signature(self, remove_self = None, max_length = 200):
+        from re import sub
+
         assert isinstance(remove_self, type(None)) or isinstance(remove_self, bool)
         assert isinstance(max_length, int)
         assert max_length >= 0
         name = self._name
         # Remove ^parent. if self._parent is set
         if isinstance(self._parent, str):
-            name = re.sub(f"^{self._parent}\.", "", self._name)
+            name = sub(f"^{self._parent}\.", "", self._name)
         else:
             name = self._name
 
@@ -245,7 +248,7 @@ class ManPage:
 
 
     def __repr_raises(self):
-
+        import xml.etree.ElementTree as et
         res = "<ul class=\"python-raises\">\n"
         for rec in self.get("raises"):
             res += f"<li><code class=\"text-warning\">{rec.type_name}</code>: " + \
@@ -317,7 +320,6 @@ class ManPage:
                 examples += self._split_example(tmp)
 
             res += "\n\n### Examples\n\n"
-            #####res += self._add_matplotlib_inline()
             for tmp in examples:
                 res += self.__repr_examples(tmp)
             res += "\n"
@@ -392,22 +394,6 @@ class ManPage:
         return x
 
 
-    def _add_matplotlib_inline(self):
-        """Add Matplotlib Line Option
-
-        Supressing warnings due to interactive mode when plotting.
-        A extra (silent) code chunk at the beginning of each Example section.
-        """
-        res = "```{python}\n" + \
-              "#| echo: false\n" + \
-              "#| error: true\n" + \
-              "#| warning: true\n" + \
-              "import matplotlib.pyplot as plt\n" + \
-              "%matplotlib inline\n" + \
-              "```\n\n"
-        return res
-
- 
     def _split_example(self, x):
         """split_example(x)
  

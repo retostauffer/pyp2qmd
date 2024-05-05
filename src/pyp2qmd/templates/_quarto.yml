@@ -15,3 +15,6 @@ website:
     left:
       - file: index.qmd
         text: Home
+  sidebar:
+    collapse-level: 1
+    contents:
