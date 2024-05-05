@@ -40,18 +40,20 @@ class Config:
                 help = f"Action to perform, one of: {', '.join(allowed_action)}")
         parser.add_argument("-p", "--package", type = str,
                 help = "Name of the python package.")
-        parser.add_argument("-o", "--output_dir", type = str, default = "_quarto",
-                help = "Name of the output directory to store the qmd file")
         parser.add_argument("--overwrite", default = False, action = "store_true",
                 help = "Only used if action = create; will overwrite _quarto.yml if needed.")
+        parser.add_argument("--quarto_dir", type = str, default = "_quarto",
+                help = "Name of the target directory for rendered quarto website.")
         parser.add_argument("--man_dir", type = str, default = "man",
-                help = "Folder to store the function/class manuals qmds, " + \
-                        "ceated inside the --output_dir folder. Must start with [A-Za-z].")
+                help = "Folder to store the function/class manual qmds (subfolder of quarto_dir).")
+        parser.add_argument("--output_dir", type = str, default = "_site",
+                help = "Name of the target directory for rendered quarto website," + \
+                       "relative to quarto_dir.")
         parser.add_argument("--docstringstyle", type = str, default = "GOOGLE",
                 help = "Docstring type (format).")
         parser.add_argument("--include_hidden", default = False, action = "store_true",
                 help = "If set, hidden functions and methods will also be documented " + \
-                        "(functions/methods starting with _ or __)")
+                        "(functions/methods starting with _ or __).")
 
         # Parsing input args
         args = parser.parse_args()
@@ -65,19 +67,20 @@ class Config:
             parser.print_help()
             sys.exit("\nUsage error: argument -p/--package must be set.")
 
-        ymlfile = f"{args.output_dir}/_quarto.yml"
+        ymlfile = f"{args.quarto_dir}/_quarto.yml"
         if args.action == "create" and isfile(ymlfile):
             parser.print_help()
             sys.exit(f"\nUsage error: action is set to \"{args.action}\" " + \
                      f"but the file \"{ymlfile}\" " + \
-                     f"already exists. Remove folder \"{args.output_dir}\" or use " + \
+                     f"already exists. Remove folder \"{args.quarto_dir}\" or use " + \
                      f"--overwrite; be aware, will overwrite the existing \"{ymlfile}\".")
 
 
         self.setup(**vars(args))
 
 
-    def setup(self, action, package, output_dir = "_quarto", man_dir = "man",
+    def setup(self, action, package,
+              quarto_dir = "_quarto", man_dir = "man", output_dir = "_site",
               overwrite = False, include_hidden = False, docstringstyle = "GOOGLE"):
         """Config Setup
 
@@ -97,9 +100,12 @@ class Config:
             action (str): Action to be executed. One of `"init"` or `"document"`,
                 see method description.
             package (str): Name of the package which should be documented.
-            output_dir (str): Output directory, defaults to `"_quarto"`.
+            quarto_dir (str): Output directory, defaults to `"_quarto"`.
             man_dir (str): Name of the directory for the manual pages (subfolder
-                inside `output_dir`), defaults to `"man"`.
+                inside `quarto_dir`), defaults to `"man"`.
+            output_dir (str): Directory for the rendered quarto website, used
+                as `output-dir` target in `_quarto.yml`, relative to
+                `quarto_dir`. Defaults to `"_site"`.
             overwrite (bool): Only used if `action = "init"`, see method
                 description.
             include_hidden (bool): If `False` (default) classes, functions, and
@@ -133,10 +139,12 @@ class Config:
         if not isinstance(self.get("package"), str):
             raise TypeError("argument `package` must be str")
 
-        if not isinstance(self.get("output_dir"), str):
-            raise TypeError("argument `output_dir` must be str")
+        if not isinstance(self.get("quarto_dir"), str):
+            raise TypeError("argument `quarto_dir` must be str")
         if not isinstance(self.get("man_dir"), str):
             raise TypeError("argument `man_dir` must be str")
+        if not isinstance(self.get("output_dir"), str):
+            raise TypeError("argument `output_dir` must be str")
 
         if not isinstance(self.get("overwrite"), bool):
             raise TypeError("argument `overwrite` must be bool")
@@ -193,8 +201,9 @@ class Config:
             res  = f"{self.__module__} Object:\n"
             res += f"    Action:            {self.get('action')}\n"
             res += f"    Package:           {self.get('package')}\n"
-            res += f"    Output dir:        {self.get('output_dir')}\n"
+            res += f"    Quarto dir:        {self.get('quarto_dir')}\n"
             res += f"    Man page dir:      {self.get('man_dir')}\n"
+            res += f"    Output dir:        {self.get('output_dir')}\n"
             res += f"    Overwrite:         {self.get('overwrite')}\n"
             res += f"    Include hidden:    {self.get('include_hidden')}\n"
             res += f"    Docstring style:   {self.get('docstringstyle')}\n"

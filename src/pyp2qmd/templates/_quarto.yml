@@ -9,3 +9,9 @@ format:
 project:
   type: website
   title: <title>
+  output-dir: <output_dir>
+website:
+  navbar:
+    left:
+      - file: index.qmd
+        text: Home

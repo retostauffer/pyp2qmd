@@ -31,6 +31,13 @@ class DocConverter:
             matching the docstringstyle defined by the user (handled as 'all upper case').
     """
 
+    # bool: is used to later on modify _quarto.yml (adding function references
+    # and class references).
+    _quarto_yml_initialized = False
+
+    # Created man pages will be stored here, used to populate _quarto.yml if needed
+    _man_created = {"classes": dict(), "functions": dict(), "method": dict()}
+
     def __init__(self, config):
         from .Config import Config
         from importlib import import_module
@@ -63,9 +70,9 @@ class DocConverter:
         # however, this might result in loss of data (overwrites these files).
         from os.path import join, isfile
         files_to_check = [
-                join(self.config_get("output_dir"), "_quarto.yml"),
-                join(self.config_get("output_dir"), "pyp.scss"),
-                join(self.config_get("output_dir"), "index.qmd")
+                join(self.config_get("quarto_dir"), "_quarto.yml"),
+                join(self.config_get("quarto_dir"), "pyp.scss"),
+                join(self.config_get("quarto_dir"), "index.qmd")
             ]
         if self.config_get("action") == "init" and not self.config_get("overwrite"):
             tmp = []
@@ -87,6 +94,7 @@ class DocConverter:
         # Proceed. If action == 'init' create template files
         if self.config_get("action") == "init":
             self.__init_documentation()
+            self._quarto_yml_initialized = True 
 
         # Class is now ready to do what it is designed for
 
@@ -97,13 +105,13 @@ class DocConverter:
         from shutil import copy
         from re import sub, match
         
-        # Trying to create output_dir and output_dir/man_dir if needed
-        if not isdir(self.config_get("output_dir")):
+        # Trying to create quarto_dir and quarto_dir/man_dir if needed
+        if not isdir(self.config_get("quarto_dir")):
             try:
-                makedirs(self.config_get("output_dir"))
+                makedirs(self.config_get("quarto_dir"))
             except Exception as e:
-                raise Exception(f"cannot create {self.config_get('output_dir')}: {e}")
-        man_dir = join(self.config_get("output_dir"), self.config_get("man_dir"))
+                raise Exception(f"cannot create {self.config_get('quarto_dir')}: {e}")
+        man_dir = join(self.config_get("quarto_dir"), self.config_get("man_dir"))
         if not isdir(man_dir):
             try:
                 makedirs(man_dir)
@@ -135,7 +143,8 @@ class DocConverter:
         src = pkg_file(pkgname, "templates", "_quarto.yml")
         content = open(src, "r").read()
         content = sub("<title>", pkgname, content)
-        with open(join(self.config_get("output_dir"), basename(src)), "w") as fid:
+        content = sub("<output_dir>", self.config_get("output_dir"), content)
+        with open(join(self.config_get("quarto_dir"), basename(src)), "w") as fid:
             fid.write(content)
         del src, content
 
@@ -145,16 +154,13 @@ class DocConverter:
         content = open(src, "r").read()
         content = sub("<title>", pkgname, content)
         content = sub("<date_and_time>", f"{dt.now():%Y-%m-%d %H:%M}", content)
-        with open(join(self.config_get("output_dir"), basename(src)), "w") as fid:
+        with open(join(self.config_get("quarto_dir"), basename(src)), "w") as fid:
             fid.write(content)
         del src, content
 
         # Copy sass
         src = pkg_file(pkgname, "templates", "pyp.sass")
-        copy(src, join(self.config_get("output_dir"), "pyp.sass"))
-
-        import sys; sys.exit("_quarto.qmd written, now copy sass")
-
+        copy(src, join(self.config_get("quarto_dir"), "pyp.sass"))
 
 
 
@@ -170,17 +176,20 @@ class DocConverter:
         """
         res  = f"{self.__module__} Object:\n"
 
-        cls = self.get_classes()
+        cls = self.get_classes(names_only = True)
         if len(cls) > 0:
             res += f"{self.__nice_stdout_list_of_strings('    Classes:   ', cls)}"
 
-        fun = self.get_functions()
+        fun = self.get_functions(names_only = True)
         if len(fun) > 0:
             res += f"{self.__nice_stdout_list_of_strings('    Functions: ', fun)}"
+
         return res
 
 
     def __nice_stdout_list_of_strings(self, desc, x):
+        from re import sub
+
         assert isinstance(desc, str), TypeError("argument `desc` must be str")
         assert isinstance(x, list),   TypeError("argument `x` must be str")
         assert all([isinstance(y, str) for y in x]), TypeError("elements in `x` must be str")
@@ -192,7 +201,7 @@ class DocConverter:
                 res[len(res) - 1] = tmp
             else:
                 res.append(" " * len(desc) + rec + ", ")
-        return "\n".join(res) + "\n"
+        return sub(",\s+$", "", "\n".join(res)) + "\n"
 
 
     def config_get(self, what):
@@ -212,12 +221,16 @@ class DocConverter:
         return self._config.get(what)
 
 
-    def get_classes(self):
+    def get_classes(self, names_only = False):
         """Get Exported Classes
 
+        Args:
+            names_only (bool): If `False` (default) a list of tuples is returned,
+                if set `True` a list of str (name of classes only).
+
         Return:
-            list: List of str with all exported classes of the package
-                as defined in the config object.
+            dict or list: Dictionary with all exported classes if `names_only = True`,
+                else a list of str containing only the class names.
 
         Raises:
             Exception: If there are issues extracting classes via `inspect`.
@@ -228,14 +241,21 @@ class DocConverter:
         except Exception as e:
             raise Exception(f"problems extracting classes from package: {e}")
 
-        return [x[0] for x in res]
+        if not names_only:
+            return dict(zip([x[0] for x in res], [x[1] for x in res]))
+        else:
+            return [x[0] for x in res]
 
-    def get_functions(self):
+    def get_functions(self, names_only = False):
         """Get Exported Functions
 
+        Args:
+            names_only (bool): If `False` (default) a list of tuples is returned,
+                if set `True` a list of str (name of classes only).
+
         Return:
-            list: List of str with all exported functions of the package
-                as defined in the config object.
+            dict or list: Dictionary with all exported functions if `names_only = True`,
+                else a list of str containing only the function names.
 
         Raises:
             Exception: If there are issues extracting functions via `inspect`.
@@ -246,7 +266,26 @@ class DocConverter:
         except Exception as e:
             raise Exception(f"problems extracting classes from package: {e}")
 
-        return [x[0] for x in res]
+        if not names_only:
+            return dict(zip([x[0] for x in res], [x[1] for x in res]))
+        else:
+            return [x[0] for x in res]
+
+    
+    def document_classes(self):
+        """Document Classes
+
+        Generates man pages for all exported classes.
+        """
+        from .ManPage import ManPage
+
+        for name,cls in self.get_classes().items():
+            print(f"[DEVEL] Create man page for {name}")
+            man = ManPage(name, cls, self._config)
+
+            self._man_created["classes"][name] = man.write_qmd()
+
+        import sys; sys.exit(3)
 
 #def create_quarto_yml(args):
 #    """
@@ -256,7 +295,7 @@ class DocConverter:
 #    by calling this function, else `False` (file did already exist).
 #    """
 #    import os
-#    ymlfile = f"{args.output_dir}/_quarto.yml"
+#    ymlfile = f"{args.quarto_dir}/_quarto.yml"
 #
 #    if args.action == "init":
 #        res = True
@@ -266,11 +305,11 @@ class DocConverter:
 #                    f"but file \"{ymlfile}\" already exists; stop!")
 #
 #        # If output directory does not yet exist, create.
-#        if not os.path.isdir(args.output_dir):
+#        if not os.path.isdir(args.quarto_dir):
 #            try:
-#                os.makedirs(args.output_dir)
+#                os.makedirs(args.quarto_dir)
 #            except:
-#                raise Exception(f"Unable to create output folder \"{args.output_dir}\"")
+#                raise Exception(f"Unable to create output folder \"{args.quarto_dir}\"")
 #
 #        # Content of the yml file
 #        content = {"project": {"type": "website"},
@@ -292,15 +331,15 @@ class DocConverter:
 #    # init must be used.
 #    else:
 #        res = False
-#        if not os.path.isdir(args.output_dir):
-#            raise Exception(f"Output folder \"{args.output_dir}\" does not exist. " + \
+#        if not os.path.isdir(args.quarto_dir):
+#            raise Exception(f"Output folder \"{args.quarto_dir}\" does not exist. " + \
 #                    "You may first need to call the script with action = init")
 #        elif not os.path.isfile(ymlfile):
 #            raise Exception(f"yml file \"{ymlfile}\" does not exist. " + \
 #                    "You may first need to call the script with action = init")
 #
 #    # Create references dir if not existing
-#    refdir = os.path.join(args.output_dir, args.man_dir)
+#    refdir = os.path.join(args.quarto_dir, args.man_dir)
 #    if not os.path.isdir(refdir):
 #        try:
 #            os.makedirs(refdir)
@@ -319,7 +358,7 @@ class DocConverter:
 #    import os
 #    import re
 #    from datetime import datetime as dt
-#    qmdfile = f"{args.output_dir}/index.qmd"
+#    qmdfile = f"{args.quarto_dir}/index.qmd"
 #    res = False
 #    if not os.path.isfile(qmdfile):
 #        res = True
@@ -370,7 +409,7 @@ class DocConverter:
 #    bool : True sass file was created/replaced, else False.
 #    """
 #    import os
-#    scssfile = f"{args.output_dir}/pyp.scss"
+#    scssfile = f"{args.quarto_dir}/pyp.scss"
 #    res = False
 #    if not os.path.isfile(scssfile) or args.action == "init":
 #        res = True
@@ -457,7 +496,7 @@ class DocConverter:
 #    assert isinstance(section, str)
 #    assert isinstance(mans, dict)
 #    assert all([isinstance(x, str) for x in mans])
-#    ymlfile = f"{args.output_dir}/_quarto.yml"
+#    ymlfile = f"{args.quarto_dir}/_quarto.yml"
 #
 #    # Read existing 
 #    with open(ymlfile, "r") as fid:
@@ -516,7 +555,7 @@ class DocConverter:
 #    #            # in the navigation.
 #    #            fn_man = py2quarto(func, package, args.include_hidden)
 #    #            print(f"[DEVEL]     - adding man page for method {fn_man.fullname()}")
-#    #            fn_qmdfile = os.path.join(args.output_dir, args.man_dir,
+#    #            fn_qmdfile = os.path.join(args.quarto_dir, args.man_dir,
 #    #                                      f"{fn_name}.qmd")
 #    #                                      #f"{fn_fullname()}.qmd")
 #    #            print(f"              {fn_qmdfile}")
@@ -620,7 +659,7 @@ class DocConverter:
 #        import filecmp
 #
 #        qmd   = f"{self._args.man_dir}/{self.quartofile()}"
-#        ofile = f"{self._args.output_dir}/{qmd}"
+#        ofile = f"{self._args.quarto_dir}/{qmd}"
 #
 #        if not os.path.isfile(ofile):
 #            with open(ofile, "w+") as fid: print(self, file = fid)

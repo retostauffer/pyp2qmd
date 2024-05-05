@@ -26,5 +26,5 @@ not listed in the navigation. The documentation can
 be accessed by visiting the class reference, and then
 click on the method of interest.
 
-_Generated: _<date_and_time>_.
+_Automatically generated: <date_and_time>_.
 
