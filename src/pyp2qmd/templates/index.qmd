@@ -8,6 +8,13 @@ converting the docstrings of all loaded functions
 and methods available via `<title>` into
 quarto markdown files (`.qmd`).
 
+`<title>` is used to document itself creating the documentation
+you are currently looking at. Created as follows:
+
+```
+pyp2qmd init --package pyp2qmd --output_dir ../docs --overwrite
+```
+
 ### Function reference
 
 Contains the documentation/reference of all functions,

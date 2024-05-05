@@ -37,7 +37,7 @@ installcolorspace:
 
 .PHONY: document
 document:
-	venv/bin/python makedocs.py document -p colorspace
+	pyp2qmd init --package pyp2qmd --output_dir ../docs --overwrite
 
 render:
 	(cd _quarto; quarto render)
