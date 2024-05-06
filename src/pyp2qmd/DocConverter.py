@@ -283,7 +283,8 @@ class DocConverter:
         from .ManPage import ManPage
 
         for name,cls in self.get_functions().items():
-            print(f"[DEVEL] Create man page for function {name}")
+            if not self.config_get("silent"):
+                print(f"Create man page for function {name}")
             man = ManPage(name, cls, self._config)
             self._man_created["function"][name] = man.write_qmd()
     
@@ -297,14 +298,16 @@ class DocConverter:
         from re import sub
 
         for name,cls in self.get_classes().items():
-            print(f"[DEVEL] Create man page for class {name}")
+            if not self.config_get("silent"):
+                print(f"Create man page for class {name}")
             man = ManPage(name, cls, self._config)
             self._man_created["class"][name] = man.write_qmd()
 
             for name,meth in man.getmembers():
                 if not self.config_get("include_hidden") and meth.__name__.startswith("_"):
                     continue
-                print(f"[DEVEL]   + method page for {name}")
+                if not self.config_get("silent"):
+                    print(f"   + method page for {name}")
                 parent = sub(r"\.[^.]*$", "", man.fullname())
                 m_man = ManPage(name, meth, self._config, parent = parent)
                 self._man_created["method"][name] = m_man.write_qmd()
@@ -329,15 +332,17 @@ class DocConverter:
         crated.
         """
         import yaml                       
+        from os.path import join
 
         n = sum([len(x) for x in self._man_created])
-        print(f"[DEVEL] Number of man pages: {n}")
+        if not self.config_get("silent"):
+            print(f"pyp2qmd: Number of man pages created {n}")
         # Nothing? Do nothing
         if not self._quarto_yml_initialized or n == 0:
             return
 
         # Reading existing yml file
-        ymlfile = f"{self.config_get('quarto_dir')}/_quarto.yml"
+        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
         with open(ymlfile, "r") as fid:
             content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
             
@@ -355,14 +360,91 @@ class DocConverter:
         with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
 
 
+    def navbar_add_page(self, src, dest, text):
+        """Add Page to Navigation
+
+        Adds page to website navbar left. Will be added to the _quarto.yml
+        file if not yet included. Will place the source file (qmd) in the
+        quarto output folder under name `dest` and linked in the navigation
+        as `text`.
+
+        Args:
+            src (str): Path to an existing quarto file, must end in `.qmd`.
+            dest (str): Target file name, name only, no path. Will be placed in
+                the `quarto_dir` as specified in the config
+                (see :py:class:`DocConverter`).
+            text (str): Name used in the navigation.
+
+        Raises:
+            TypeError: If `src`, `dest`, `text` are not str.
+            ValueError: If `src` and `dest` do not end in `.qmd`
+            ValueError: If `dest` is a path, not only the name of the target quarto file.
+            FileNotFoundError: If `src` does not exist.
+            Exception: If `dest` already exists but overwrite is set `False`
+                (see :py:class:`DocConverter`).
+            Exception: if `src` cannot be copied to destination.
+        """
 
 
+        import yaml
+        from re import match
+        from os.path import isfile, basename, join
+        from shutil import copy
 
+        if not isinstance(src, str):
+            raise TypeError("argument `src` must be str, qmd file name")
+        elif not match(r".*\.qmd$", src):
+            raise ValueError("argument `src` must end in '.qmd' pointing to a quarto file")
+        elif not isfile(src):
+            raise FileNotFoundError(f"cannot find file \"{src}\"")
 
+        if not isinstance(dest, str):
+            raise TypeError("argument `dest` must be str, qmd file name")
+        elif not match(r".*\.qmd$", dest):
+            raise ValueError("argument `dest` must end in '.qmd' pointing to a quarto file")
+        elif not dest == basename(dest):
+            raise ValueError("argument `dest` must only contain target file name, not path")
 
+        if not isinstance(text, str):
+            raise TypeError("argument `text` must be str, link name")
 
+        # Already exists?
+        dest_path = join(self.config_get("quarto_dir"), dest)
+        if isfile(dest_path) and not self.config_get("overwrite"):
+            raise Exception(f"target file \"{dest_path}\" already exists and overwrite " + \
+                    "is False. Consider enabling overwrite. Could result in loss of data!")
 
+        # Reading existing yml file
+        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
+        with open(ymlfile, "r") as fid:
+            content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
 
+        # Access existing navbar left. If this fails, it does not exist
+        # in the _quarto.yml and an exception will be thrown.
+        try:
+            tmp = content["website"]["navbar"]["left"]
+        except:
+            raise Exception(f"\"{ymlfile}\" does not contain website > navbar > left")
 
+        # Copy src file to dest_path using shutil
+        try:
+            copy(src, dest_path)
+        except Exception as e:
+            raise Exception(e)
+
+        # Loop trough existing entries. If we find an entry
+        # with the current file text, just update the text. Else add at the end.
+        found = False
+        for i in range(len(tmp)):
+            if content["website"]["navbar"]["left"][i]["file"] == dest:
+                content["website"]["navbar"]["left"][i]["text"] = text
+                found = True
+                break
+
+        # Not found? Append at the end.
+        content["website"]["navbar"]["left"].append({"file": dest, "text": text})
+
+        # Write back
+        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
 
 

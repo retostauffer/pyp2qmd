@@ -37,7 +37,9 @@ installcolorspace:
 
 .PHONY: document
 document:
-	pyp2qmd init --package pyp2qmd --output_dir ../docs --overwrite
+	make install
+	python make_docs/main.py # Custom 'make package documentation for this package'
+	##pyp2qmd init --package pyp2qmd --output_dir ../docs --overwrite
 
 render:
 	(cd _quarto; quarto render)

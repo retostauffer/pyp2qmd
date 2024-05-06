@@ -54,6 +54,8 @@ class Config:
         parser.add_argument("--include_hidden", default = False, action = "store_true",
                 help = "If set, hidden functions and methods will also be documented " + \
                         "(functions/methods starting with _ or __).")
+        parser.add_argument("--silent", default = False, action = "store_true",
+                help = "If set, output will be suppressed")
 
         # Parsing input args
         args = parser.parse_args()
@@ -81,7 +83,8 @@ class Config:
 
     def setup(self, action, package,
               quarto_dir = "_quarto", man_dir = "man", output_dir = "_site",
-              overwrite = False, include_hidden = False, docstringstyle = "GOOGLE"):
+              overwrite = False, include_hidden = False, docstringstyle = "GOOGLE",
+              silent = False):
         """Config Setup
 
         `action = "init"` initializes the auto-generated documentation and will
@@ -108,7 +111,7 @@ class Config:
                 `quarto_dir`. Defaults to `"_site"`.
             overwrite (bool): Only used if `action = "init"`, see method
                 description.
-            include_hidden (bool): If `False` (default) classes, functions, and
+            include_hidden (bool): If `False` (default), classes, functions, and
                 methods starting with an underscore will not be documented
                 (no quarto man pages will be crated). Dunder classes, functions, and
                 methods are always excluded.
@@ -116,6 +119,9 @@ class Config:
                 of the allowed types of the `docstring_parser` package
                 (AUTO, EPYDOC, GOOGLE, NUMPYDOC, REST), defaults to `"GOOGLE"`;
                 not case sensitive.
+            silent (bool): If `False` (default) some output will be produced
+                when rendering the man pages. Can be specified to silence the
+                execution.
 
         Raises:
             TypeError: If the inputs are not of the expected type.
@@ -153,6 +159,9 @@ class Config:
 
         if not isinstance(self.get("docstringstyle"), str):
             raise TypeError("argument `docstringstyle` must be str")
+
+        if not isinstance(self.get("silent"), bool):
+            raise TypeError("argument `silent` must be bool")
 
         self._is_set_up = True
 
