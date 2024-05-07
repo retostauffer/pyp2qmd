@@ -366,12 +366,13 @@ class ManPage:
 
 
     def __repr_examples(self, x):
+        from re import sub, MULTILINE
         assert isinstance(x, str)
         res = "```{python}\n" + \
               "#| echo: true\n" + \
               "#| error: true\n" + \
               "#| warning: true\n" + \
-              re.sub("^#:", "#", x, flags = re.MULTILINE) + \
+              sub("^#:", "#", x, flags = MULTILINE) + \
               "\n```\n\n"
         return res
 
@@ -385,12 +386,13 @@ class ManPage:
         Return:
         str : Modified example to be ready for quarto.
         """
+        from re import sub, MULTILINE
         # Comment 'text' (can be included in the py example section)
-        x = re.sub(r"^(?!(>>>))", "## ", x, flags = re.MULTILINE)
+        x = sub(r"^(?!(>>>))", "## ", x, flags = MULTILINE)
         # Removing empty lines
-        x = re.sub(r"^##\s+?$", "", x, flags = re.MULTILINE)
+        x = sub(r"^##\s+?$", "", x, flags = MULTILINE)
         # Remove >>> code identifiers
-        x = re.sub(r"^>>>\s+?", "", x, flags = re.MULTILINE)
+        x = sub(r"^>>>\s+?", "", x, flags = MULTILINE)
         return x
 
 
@@ -404,10 +406,11 @@ class ManPage:
         list: List of strings. If we find `#:` at the start of a line
         we split the example at this position in multiple segments.
         """
-        res = re.split(r"\n(?=#:)", x, flags = re.MULTILINE)
+        from re import split, sub, MULTILINE
+        res = split(r"\n(?=#:)", x, flags = MULTILINE)
         # Remove empty lines if any
         for i in range(len(res)):
-            res[i] = re.sub("#:[\s+]?\n", "", res[i], flags = re.MULTILINE)
+            res[i] = sub("#:[\s+]?\n", "", res[i], flags = MULTILINE)
         return res
 
 
