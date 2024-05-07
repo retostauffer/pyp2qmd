@@ -35,7 +35,9 @@ class Config:
         allowed_action = ["init", "document"]
 
         import argparse
-        parser = argparse.ArgumentParser("Creating qmd documentation from python package")
+        from re import search
+        pkg_name = search(r"^(.*?)(?=\.)", self.__module__).group(1)
+        parser = argparse.ArgumentParser(pkg_name)
         parser.add_argument("action", nargs = 1, type = str,
                 help = f"Action to perform, one of: {', '.join(allowed_action)}")
         parser.add_argument("-p", "--package", type = str,
@@ -43,19 +45,21 @@ class Config:
         parser.add_argument("--overwrite", default = False, action = "store_true",
                 help = "Only used if action = create; will overwrite _quarto.yml if needed.")
         parser.add_argument("--quarto_dir", type = str, default = "_quarto",
-                help = "Name of the target directory for rendered quarto website.")
+                help = "Name of the target directory for rendered quarto website. " + \
+                       "Defaults to \"_quarto\".")
         parser.add_argument("--man_dir", type = str, default = "man",
-                help = "Folder to store the function/class manual qmds (subfolder of quarto_dir).")
+                help = "Folder to store the function/class manual qmds (subfolder of quarto_dir). " + \
+                       "Defaults to \"man\".")
         parser.add_argument("--output_dir", type = str, default = "_site",
                 help = "Name of the target directory for rendered quarto website," + \
-                       "relative to quarto_dir.")
+                       "relative to quarto_dir. Defaults to \"_site\".")
         parser.add_argument("--docstringstyle", type = str, default = "GOOGLE",
-                help = "Docstring type (format).")
+                help = "Docstring type (format). Defaults to \"GOOGLE\".")
         parser.add_argument("--include_hidden", default = False, action = "store_true",
                 help = "If set, hidden functions and methods will also be documented " + \
                         "(functions/methods starting with _ or __).")
         parser.add_argument("--silent", default = False, action = "store_true",
-                help = "If set, output will be suppressed")
+                help = "If set, output will be suppressed.")
 
         # Parsing input args
         args = parser.parse_args()

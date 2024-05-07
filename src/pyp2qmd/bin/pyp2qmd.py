@@ -5,12 +5,12 @@ def main():
 
     # Initialize Config; parses user arguments via argparse
     config  = Config(argparse = True)
-    print(config)
+    if not config.get("silent"): print(config)
 
     # Initialize DocConverter; creates _quarto.yml,
     # pyp.sass, and index.qmd if needed.
     docconv = DocConverter(config)
-    print(docconv)
+    if not config.get("silent"): print(docconv)
 
     docconv.document()
     docconv.update_quarto_yml()

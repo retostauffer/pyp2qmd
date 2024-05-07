@@ -17,8 +17,10 @@ def main():
     docconv.update_quarto_yml()
 
     # Adding test page
-    src = join("make_docs", "test.qmd")
-    docconv.navbar_add_page(src, basename(src), "xxTESCHT")
+    src = join("make_docs", "getting_started.qmd")
+    docconv.navbar_add_page(src, basename(src), "Getting started")
+    src = join("make_docs", "design_philosophy.qmd")
+    docconv.navbar_add_page(src, basename(src), "Design philosophy")
 
 if __name__ == "__main__":
     main()

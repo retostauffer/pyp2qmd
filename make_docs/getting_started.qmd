@@ -1,0 +1,144 @@
+---
+title: "Getting Started"
+---
+
+The **pyp2qmd** package provides _(i)_ a console tool to set up a
+skeleton of the documentation, but also _(ii)_ allows to write a small
+Python script to do so. The latter allows for somewhat more control
+(tough limited at the moment).
+
+## Documentation skeleton via console
+
+The package is shipped with an executable called `pyp2qmd`, providing
+a series of options to set up the basic structure (sekelton) of a Python
+package quarto documentation.
+
+It will load an existing package and extract all exported functions and
+classes (from the main module), creating quarto markdown manuals for
+each of them. Alongside the manuals a basic [quarto][quarto] website
+structure is set up.
+
+::: {.panel-tabset}
+
+#### Usage
+
+The `pyp2qmd` executable provides a series of arguments whereof two
+are mandatory, namely `action` and `-p/--package`. For details, see
+`pyp2qmd --help` (included in the tab 'Show usage help').
+
+* `action`: One of `init` (initialize documentation skeleton) or
+    `document` (update documentation).
+* `-p/--package`: Name of the package to be documented.
+
+Thus, in the simplest case the command looks as follows:
+
+```
+pyp2qmd init --package <name_of_package>
+```
+
+All other arguments have defaults (see `--help`) which can be adjusted if needed.
+
+
+#### Show usage help
+
+```
+pyp2qmd --help
+```
+
+```{python}
+#| echo: False
+from os import system
+dead_end = system("pyp2qmd --help")
+```
+
+:::
+
+
+### File structure created
+
+This will create the following structure (for `--package pyp2qmd`):
+
+```{python}
+#| echo: False
+from os import system
+from tempfile import TemporaryDirectory
+tmp = TemporaryDirectory()
+
+dead_end = system(f"pyp2qmd init --package pyp2qmd --quarto_dir {tmp.name} --silent")
+print("_quarto")
+dead_end = system(f"tree {tmp.name} | awk 'NR>1'")
+tmp.cleanup()
+del tmp
+```
+
+The file `_quarto.yml` contains the template for the quarto website skeleton,
+`index.qmd` a template of the websites entry page (home). In addition,
+`pyp.scss` with a series of style adjustments.
+
+In addition, a folder is created containing the man pages (default `--man_dir` name
+is `"man"`) for all exported functions and classes as well as their methods.
+To render the website simply execute:
+
+```
+(cd _quarto && quarto render)
+```
+
+This will render the website and output a series of static HTML files into the
+`output_folder` (`_quarto/_site` by default).
+
+
+## Documentation via script
+
+Alternatively, a small custom Python script can be written to
+create the documentation. This allows to add additional pages
+to the quarto website top navigation.
+
+The script below is creating the documentation you are reading
+currently.
+
+
+```
+#!/usr/bin/env python
+
+def main():
+    from os.path import join, basename
+    from pyp2qmd import Config, DocConverter
+
+    # Initialize Config; parses user arguments via argparse
+    config  = Config()
+    config.setup(action = "init", package = "pyp2qmd",
+                 output_dir = "../docs", overwrite = True)
+
+    # Initialize DocConverter; creates _quarto.yml,
+    # pyp.sass, and index.qmd if needed.
+    docconv = DocConverter(config)
+
+    docconv.document()
+    docconv.update_quarto_yml()
+
+    # Adding test page
+    src = join("make_docs", "getting_started.qmd")
+    docconv.navbar_add_page(src, basename(src), "Getting started")
+    src = join("make_docs", "designg_philosphy.qmd")
+    docconv.navbar_add_page(src, basename(src), "Design philosophy")
+
+if __name__ == "__main__":
+    main()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

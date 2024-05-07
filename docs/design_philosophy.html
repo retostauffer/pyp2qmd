@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>pyp2qmd - Demo Function: Invalid Docstring</title>
+<title>pyp2qmd - Design Philosophy</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,22 +23,22 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,7 +70,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">pyp2qmd</span>
     </a>
   </div>
@@ -81,15 +81,15 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../index.html" rel="" target="">
+    <a class="nav-link" href="./index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../getting_started.html" rel="" target="">
+    <a class="nav-link" href="./getting_started.html" rel="" target="">
  <span class="menu-text">Getting started</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../design_philosophy.html" rel="" target="">
+    <a class="nav-link active" href="./design_philosophy.html" rel="" target="" aria-current="page">
  <span class="menu-text">Design philosophy</span></a>
   </li>  
 </ul>
@@ -103,7 +103,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/pyp2qmd.demofunctions.demofun_allfine.html">Function references</a></li><li class="breadcrumb-item"><a href="../man/pyp2qmd.demofunctions.demofun_wrong.html">demofun_wrong</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Design Philosophy</li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -117,28 +117,28 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false">
  <span class="menu-text">Function references</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/pyp2qmd.demofunctions.demofun_allfine.html" class="sidebar-item-text sidebar-link">
+  <a href="./man/pyp2qmd.demofunctions.demofun_allfine.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">demofun_allfine</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/pyp2qmd.demofunctions.demofun_wrong.html" class="sidebar-item-text sidebar-link active">
+  <a href="./man/pyp2qmd.demofunctions.demofun_wrong.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">demofun_wrong</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/pyp2qmd.demofunctions.demofun_wrong2.html" class="sidebar-item-text sidebar-link">
+  <a href="./man/pyp2qmd.demofunctions.demofun_wrong2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">demofun_wrong2</span></a>
   </div>
 </li>
@@ -155,19 +155,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/pyp2qmd.Config.Config.html" class="sidebar-item-text sidebar-link">
+  <a href="./man/pyp2qmd.Config.Config.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Config</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/pyp2qmd.DocConverter.DocConverter.html" class="sidebar-item-text sidebar-link">
+  <a href="./man/pyp2qmd.DocConverter.DocConverter.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">DocConverter</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/pyp2qmd.ManPage.ManPage.html" class="sidebar-item-text sidebar-link">
+  <a href="./man/pyp2qmd.ManPage.ManPage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ManPage</span></a>
   </div>
 </li>
@@ -184,7 +184,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Demo Function: Invalid Docstring</h1>
+<h1 class="title">Design Philosophy</h1>
 </div>
 
 
@@ -199,29 +199,28 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="description" class="level3">
-<h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>This function is used for testing/demonstrating the <a href="../man/pyp2qmd.DocConverter.DocConverter.html">DocConverter</a>. Docstring not properly specified, missing documentation for arguments, and return.</p>
-</section>
-<section id="usage" class="level3">
-<h3 class="anchored" data-anchor-id="usage">Usage</h3>
-<pre><code class="language-python">demofun_wrong(x='demo', *args, **kwargs)</code></pre>
-</section>
-<section id="arguments" class="level3">
-<h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
+<p>The <strong>pyp2qmd</strong> package comes with three classes:</p>
 <ul>
-<li>
-WARNING(missing argument definition “x” in docstring)
-</li>
-<li>
-WARNING(missing argument definition “args” in docstring)
-</li>
-<li>
-WARNING(missing argument definition “kwargs” in docstring)
-</li>
+<li><a href="./man/pyp2qmd.Config.Config.html"><code>Config</code></a>: Handling arguments/configuration used to create the documentation.</li>
+<li><a href="./man/pyp2qmd.DocConverter.DocConverter.html"><code>DocConverter</code></a>: The ‘work horse’ extracting Python docstrings and convert them into quarto manual pages.</li>
+<li><a href="./man/pyp2qmd.ManPage.ManPage.html"><code>ManPage</code></a>: Handling the conversion to quarto markdown, used by the <code>DocConverter</code> class.</li>
 </ul>
-<dl class="pyp-list param-list">
-</dl>
+<section id="config-class" class="level2">
+<h2 class="anchored" data-anchor-id="config-class">Config class</h2>
+<p>Can be used in two differnet ways: Parsing arguments via <code>argparse</code> or set up via script. If <code>argparse = False</code> an empty object is initialized and the user must call <a href="./man/pyp2qmd.Config.Config.setup.html">Config.setup</a> to specify all required (as well as optional) arguments/settings.</p>
+<p>If <code>argparse = True</code> the package will use <code>argparse</code> to parse the users inputs.</p>
+<p>This object is then forwarded to both the <a href="./man/pyp2qmd.DocConverter.DocConverter.html"><code>DocConverter</code></a> class as well as the <a href="./man/pyp2qmd.ManPage.ManPage.html"><code>ManPage</code></a> in order to do their job.</p>
+</section>
+<section id="document-converter-class" class="level2">
+<h2 class="anchored" data-anchor-id="document-converter-class">Document converter class</h2>
+<p>On initialization this class creates the output folders as well as the basic structure of the quarto website, including <code>_quarto.yml</code>, <code>pyp.scss</code> and <code>index.qmd</code>. If <code>action</code> is set to <code>"document"</code> and at least one of these files already exists an error will be thrown to avoid overwriting them which could result in loss of data if the user already adjusted them manually.</p>
+<p>For testing (or fully automatically created documentations) <code>action</code> can be set to <code>"init"</code> with <code>overwrite = True</code> to force overwrite files if existing.</p>
+<p>The class provides a series of methods which are not explained here in detail (see <a href="./man/pyp2qmd.DocConverter.DocConverter.html">class documentation</a> for more information).</p>
+<p>The main (most important) method is <a href="./man/pyp2qmd.DocConverter.DocConverter.document.html"><code>.document()</code></a> which documents all functions and classes and creates the quarto markdown files stored in the <code>man_dir</code> folder.</p>
+</section>
+<section id="manual-page-class" class="level2">
+<h2 class="anchored" data-anchor-id="manual-page-class">Manual page class</h2>
+<p>Called by the <a href="./man/pyp2qmd.DocConverter.DocConverter.html"><code>DocConverter</code></a> class, handles the conversion from Python docstrings to quarto markdown. Typically not used by end users.</p>
 
 
 </section>

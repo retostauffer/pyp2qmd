@@ -1,0 +1,56 @@
+---
+title: "Design Philosophy"
+---
+
+The **pyp2qmd** package comes with three classes:
+
+
+* [`Config`](man/pyp2qmd.Config.Config.qmd): Handling arguments/configuration
+    used to create the documentation.
+* [`DocConverter`](man/pyp2qmd.DocConverter.DocConverter.qmd): The 'work horse'
+    extracting Python docstrings and convert them into quarto manual pages.
+* [`ManPage`](man/pyp2qmd.ManPage.ManPage.qmd): Handling the conversion to
+    quarto markdown, used by the `DocConverter` class.
+
+## Config class
+
+Can be used in two differnet ways: Parsing arguments via `argparse` or set
+up via script. If `argparse = False` an empty object is initialized and the
+user must call [Config.setup](man/pyp2qmd.Config.Config.setup.qmd) to specify
+all required (as well as optional) arguments/settings.
+
+If `argparse = True` the package will use `argparse` to parse the users inputs.
+
+This object is then forwarded to both the
+[`DocConverter`](man/pyp2qmd.DocConverter.DocConverter.qmd) class as well as
+the [`ManPage`](man/pyp2qmd.ManPage.ManPage.qmd) in order to do their job.
+
+
+## Document converter class
+
+On initialization this class creates the output folders as well as the
+basic structure of the quarto website, including `_quarto.yml`, `pyp.scss`
+and `index.qmd`. If `action` is set to `"document"` and at least one of these
+files already exists an error will be thrown to avoid overwriting them which
+could result in loss of data if the user already adjusted them manually.
+
+For testing (or fully automatically created documentations) `action` can
+be set to `"init"` with `overwrite = True` to force overwrite files if
+existing.
+
+The class provides a series of methods which are not explained here in
+detail (see [class documentation](man/pyp2qmd.DocConverter.DocConverter.qmd)
+for more information).
+
+The main (most important) method is
+[`.document()`](man/pyp2qmd.DocConverter.DocConverter.document.qmd)
+which documents all functions and classes and creates the quarto markdown
+files stored in the `man_dir` folder.
+
+
+## Manual page class
+
+Called by the [`DocConverter`](man/pyp2qmd.DocConverter.DocConverter.qmd)
+class, handles the conversion from Python docstrings to quarto markdown. Typically
+not used by end users.
+
