@@ -360,7 +360,7 @@ class DocConverter:
         with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
 
 
-    def navbar_add_page(self, src, dest, text):
+    def navbar_add_page(self, src, dest, text, menu = None):
         """Add Page to Navigation
 
         Adds page to website navbar left. Will be added to the _quarto.yml
@@ -370,16 +370,20 @@ class DocConverter:
 
         Args:
             src (str): Path to an existing quarto file, must end in `.qmd`.
-            dest (str): Target file name, name only, no path. Will be placed in
-                the `quarto_dir` as specified in the config
-                (see :py:class:`DocConverter`).
+            dest (str): Name or path for target quarto file. If path, the
+                directory will be created inside `quarto_dir` as specified in the
+                config (see :py:class:`DocConverter`) if not yet existing.
             text (str): Name used in the navigation.
+            menu (None, str): Must be `None` if pages are added. If set,
+                it is expected that a menu with this name exists. The page
+                will then be added to that menu if not already in there.
 
         Raises:
             TypeError: If `src`, `dest`, `text` are not str.
             ValueError: If `src` and `dest` do not end in `.qmd`
             ValueError: If `dest` is a path, not only the name of the target quarto file.
             FileNotFoundError: If `src` does not exist.
+            TypeError: If `menu` is not `None` nor `str`.
             Exception: If `dest` already exists but overwrite is set `False`
                 (see :py:class:`DocConverter`).
             Exception: if `src` cannot be copied to destination.
@@ -388,7 +392,8 @@ class DocConverter:
 
         import yaml
         from re import match
-        from os.path import isfile, basename, join
+        from os.path import isfile, basename, dirname, join
+        from os import makedirs
         from shutil import copy
 
         if not isinstance(src, str):
@@ -402,11 +407,20 @@ class DocConverter:
             raise TypeError("argument `dest` must be str, qmd file name")
         elif not match(r".*\.qmd$", dest):
             raise ValueError("argument `dest` must end in '.qmd' pointing to a quarto file")
-        elif not dest == basename(dest):
-            raise ValueError("argument `dest` must only contain target file name, not path")
+
+        # Path?
+        if not dest == basename(dest):
+            tmp = join(self.config_get("quarto_dir"), dirname(dest))
+            try:
+                makedirs(tmp, exist_ok = True)
+            except Exception as e:
+                raise Exception(f"cannot create folder \"{tmp}\": {e}")
 
         if not isinstance(text, str):
             raise TypeError("argument `text` must be str, link name")
+
+        if not isinstance(menu, type(None)) and not isinstance(menu, str):
+            raise TypeError("argument `menu` must be `None` or str")
 
         # Already exists?
         dest_path = join(self.config_get("quarto_dir"), dest)
@@ -432,19 +446,88 @@ class DocConverter:
         except Exception as e:
             raise Exception(e)
 
+        # If `menu = None` we are adding a page, so we are searching
+        # (and appending) to  this:
+        nav = content["website"]["navbar"]["left"] # 'pointer'
+        # If `menu` is set, we must first find the menu.
+        if isinstance(menu, str):
+            found = False
+            for j in range(len(nav)):
+                if not "menu" in nav[j].keys() or not "text" in nav[j].keys():
+                    continue
+                elif nav[j]["text"] == menu:
+                    # Replace `nav` object and break
+                    nav = nav[j]["menu"]
+                    found = True
+                    break
+            # Not found? Error
+            if not found:
+                raise Exception(f"could not find menu \"{menu}\". " + \
+                                "Not yet added via .navbar_add_menu()?")
+
+
         # Loop trough existing entries. If we find an entry
         # with the current file text, just update the text. Else add at the end.
+        # This is when adding pages directly to the navigation.
         found = False
-        for i in range(len(tmp)):
-            if content["website"]["navbar"]["left"][i]["file"] == dest:
-                content["website"]["navbar"]["left"][i]["text"] = text
+        for i in range(len(nav)):
+            if len(nav[i]) > 0 and nav[i]["file"] == dest:
+                nav[i]["text"] = text
                 found = True
                 break
 
         # Not found? Append at the end.
-        content["website"]["navbar"]["left"].append({"file": dest, "text": text})
+        nav.append({"file": dest, "text": text})
 
         # Write back
         with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+
+
+    def navbar_add_menu(self, menu):
+        """Add Dropdown Menu to Navigation
+
+        Adds a menu (dropdown menu) to the top navigation which can be
+        populated with a series of pages. Will only be added if not yet existing.
+
+        Args:
+            menu (str): Name of the dropdown menu.
+
+        Raises:
+            TypeError: If `menu` is not str.
+        """
+
+
+        import yaml
+        from re import match
+        from os.path import isfile, basename, join
+        from shutil import copy
+
+        if not isinstance(menu, str):
+            raise TypeError("argument `menu` must be str")
+
+        # Reading existing yml file
+        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
+        with open(ymlfile, "r") as fid:
+            content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
+
+        # Check for menus
+        found = False
+        for rec in content["website"]["navbar"]["left"]:
+            # No menu? Or no text? Skip
+            if not "menu" in rec.keys() or not "text" in rec.keys():
+                continue
+            # Is the current menu the one the user wants to add?
+            if rec["text"] == menu:
+                found = True
+        
+        # Not found: Add new empty menu
+        if not found:
+            tmp = {"text": menu, "menu": []}
+            content["website"]["navbar"]["left"].append(tmp)
+
+        # Write back
+        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+
+
 
 
