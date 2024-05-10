@@ -104,18 +104,21 @@ class ManPage:
         formatting of signature to get some line breaks in output
         """
 
+        from html import escape
+
         n = max_length - len(name) - 1
         formatted_params = []
         tmp = []
 
         for k,p in self._signature.parameters.items():
+            p = escape(str(p)) # Escape html chars
             if remove_self and k == "self": continue
             tmp_len = max(0, sum([len(x) for x in tmp]) + (len(tmp) - 1) * 2)
-            if (tmp_len + len(str(p)) + 1) <= n:
-                tmp.append(str(p))
+            if (tmp_len + len(p) + 1) <= n:
+                tmp.append(p)
             else:
                 formatted_params.append(", ".join(tmp))  
-                tmp = [str(p)]
+                tmp = [p]
 
         # First empty? Can happen if max_length very small
         if len(formatted_params) > 0 and formatted_params[0] == "":
@@ -192,6 +195,7 @@ class ManPage:
     def __repr_args(self):
 
         from re import findall, sub
+        from html import escape
 
         res = ""
 
@@ -228,7 +232,7 @@ class ManPage:
             mtch = findall(r"^(.*)\((.*?)\)$", arg.args[1])
             if len(mtch) > 0:
                 arg_name = mtch[0][0].strip()
-                arg_cls  = f"<code class=\"argument-class\">{mtch[0][1]}</code>"
+                arg_cls  = f"<code class=\"argument-class\">{escape(mtch[0][1])}</code>"
             else:
                 arg_name = arg.args[1].strip()
                 arg_cls  = ""
@@ -236,9 +240,9 @@ class ManPage:
             #short_arg = re.search("^([\*\w]+)", arg.args[1]).group(1).replace("*", "")
             # Building html table row
             res += "  <dt style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
-                   f"   <code id=\"{self.fullname()}:{arg_name}\">{arg_name}</code>{arg_cls}\n" + \
+                   f"   <code id=\"{self.fullname()}:{arg_name}\">escape({arg_name})</code>{arg_cls}\n" + \
                    "  </dt>\n" + \
-                   f" <dd>{self._add_references(arg.description)}</dd>\n"
+                   f" <dd>escape({self._add_references(arg.description)})</dd>\n"
 
         res += "</dl>"
 
@@ -249,10 +253,11 @@ class ManPage:
 
     def __repr_raises(self):
         import xml.etree.ElementTree as et
+        from html import escape
         res = "<ul class=\"python-raises\">\n"
         for rec in self.get("raises"):
             res += f"<li><code class=\"text-warning\">{rec.type_name}</code>: " + \
-                   f"{self._add_references(rec.description)}\n"
+                   f"{escape(self._add_references(rec.description))}\n"
         return res + "</ul>\n"
 
 
