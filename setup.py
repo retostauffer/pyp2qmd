@@ -26,12 +26,13 @@ setup(
         "License :: OSI Approved :: GPL-2",
         "Operating System :: OS Independent"
     ],
-    install_requires = ["docstring_parser", "pyyaml"],
-    packages         = find_packages("src"),
-    package_dir      = {"": "src"},
-    package_data     = {"": ["data/*"]},
-    python_requires  = ">=3.8",
-    zip_safe         = False,
+    install_requires     = ["docstring_parser", "pyyaml"],
+    packages             = find_packages("src"),
+    package_dir          = {"": "src"},
+    package_data         = {"": ["data/*"]},
+    python_requires      = ">=3.8",
+    include_package_data = True,
+    zip_safe             = False,
 
     # Executables
     entry_points = {
