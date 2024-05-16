@@ -2,8 +2,8 @@
 title: "Getting Started"
 ---
 
-The **pyp2qmd** package provides _(i)_ a console tool to set up a
-skeleton of the documentation, but also _(ii)_ allows to write a small
+The **pyp2qmd** package provides (i) a console tool to set up a
+skeleton of the documentation, but also (ii) allows to write a small
 Python script to do so. The latter allows for somewhat more control
 (tough limited at the moment).
 
