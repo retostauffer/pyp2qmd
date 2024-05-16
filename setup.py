@@ -29,7 +29,6 @@ setup(
     install_requires     = ["docstring_parser", "pyyaml"],
     packages             = find_packages("src"),
     package_dir          = {"": "src"},
-    package_data         = {"": ["data/*"]},
     python_requires      = ">=3.8",
     zip_safe             = False,
 
