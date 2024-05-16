@@ -31,8 +31,11 @@ setup(
     package_dir          = {"": "src"},
     package_data         = {"": ["data/*"]},
     python_requires      = ">=3.8",
-    include_package_data = True,
     zip_safe             = False,
+
+    # Static files (templates)
+    include_package_data = True,
+    package_data = {"pyp2qmd": ["templates/*"]},
 
     # Executables
     entry_points = {
