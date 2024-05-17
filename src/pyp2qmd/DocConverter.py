@@ -360,7 +360,7 @@ class DocConverter:
         with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
 
 
-    def navbar_add_page(self, src, dest, text, menu = None):
+    def add_navbar_page(self, src, dest, text, menu = None):
         """Add Page to Navigation
 
         Adds page to website navbar left. Will be added to the _quarto.yml
@@ -463,7 +463,7 @@ class DocConverter:
             # Not found? Error
             if not found:
                 raise Exception(f"could not find menu \"{menu}\". " + \
-                                "Not yet added via .navbar_add_menu()?")
+                                "Not yet added via .add_navbar_menu()?")
 
 
         # Loop trough existing entries. If we find an entry
@@ -483,7 +483,7 @@ class DocConverter:
         with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
 
 
-    def navbar_add_menu(self, menu):
+    def add_navbar_menu(self, menu):
         """Add Dropdown Menu to Navigation
 
         Adds a menu (dropdown menu) to the top navigation which can be
@@ -500,7 +500,6 @@ class DocConverter:
         import yaml
         from re import match
         from os.path import isfile, basename, join
-        from shutil import copy
 
         if not isinstance(menu, str):
             raise TypeError("argument `menu` must be str")
@@ -528,6 +527,44 @@ class DocConverter:
         # Write back
         with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
 
+
+    def add_favicon(self, file):
+        """Add Favicon
+
+        Args:
+            file (str): File name of parth to the favicon (png, jpg).
+
+        Raises:
+            TypeError: If `file` is not str.
+            FileNotFoundError: If `file` does not point to an existing file.
+        """
+
+        import yaml
+        from re import match
+        from os.path import isfile, basename, join
+        from shutil import copy
+
+        if not isinstance(file, str):
+            raise TypeError("argument `file` must be str")
+        elif not isfile(file):
+            raise FileNotFoundError(f"file \"{f}\" not found on disc")
+
+        # Reading existing yml file
+        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
+        with open(ymlfile, "r") as fid:
+            content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
+
+        # Try to find the 'website' section where we will add this option
+        content["website"]["favicon"] = basename(file)
+
+        # Write back
+        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+
+        # Copy src file to dest_path using shutil
+        try:
+            copy(src, join(self.config_get("quarto_dir"), basename(file)))
+        except Exception as e:
+            raise Exception(e)
 
 
 

@@ -119,9 +119,9 @@ def main():
 
     # Adding test page
     src = join("make_docs", "getting_started.qmd")
-    docconv.navbar_add_page(src, basename(src), "Getting started")
+    docconv.add_navbar_page(src, basename(src), "Getting started")
     src = join("make_docs", "designg_philosphy.qmd")
-    docconv.navbar_add_page(src, basename(src), "Design philosophy")
+    docconv.add_navbar_page(src, basename(src), "Design philosophy")
 
 if __name__ == "__main__":
     main()

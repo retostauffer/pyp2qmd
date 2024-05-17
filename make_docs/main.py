@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 def main():
-    from os.path import join, basename
+    from os.path import join, basename, dirname
     from pyp2qmd import Config, DocConverter
+
+    # Get path to this file
+    abspath = dirname(__file__)
 
     # Initialize Config; parses user arguments via argparse
     config  = Config()
@@ -16,10 +19,13 @@ def main():
     docconv.update_quarto_yml()
 
     # Adding test page
-    src = join("make_docs", "getting_started.qmd")
-    docconv.navbar_add_page(src, basename(src), "Getting started")
-    src = join("make_docs", "design_philosophy.qmd")
-    docconv.navbar_add_page(src, basename(src), "Design philosophy")
+    src = join(abspath, "getting_started.qmd")
+    docconv.add_navbar_page(src, basename(src), "Getting started")
+    src = join(abspath, "design_philosophy.qmd")
+    docconv.add_navbar_page(src, basename(src), "Design philosophy")
+
+    # Adding favicon
+    docconv.add_favicon(join(abspath, "favicon.png"))
 
 if __name__ == "__main__":
     main()
