@@ -6,8 +6,7 @@ def main():
 
     # Initialize Config; parses user arguments via argparse
     config  = Config()
-    config.setup(action = "init", package = "pyp2qmd",
-                 output_dir = "../docs", overwrite = True)
+    config.setup(action = "init", package = "pyp2qmd", overwrite = True)
 
     # Initialize DocConverter; creates _quarto.yml,
     # pyp.sass, and index.qmd if needed.
