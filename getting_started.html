@@ -229,29 +229,35 @@ pyp2qmd init --package &lt;name_of_package&gt;</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <pre><code>pyp2qmd --help</code></pre>
-<div id="28df03bb" class="cell" data-execution_count="1">
-<div class="cell-output cell-output-stderr">
-<pre><code>Traceback (most recent call last):
-  File "/opt/hostedtoolcache/Python/3.11.9/x64/bin/pyp2qmd", line 33, in &lt;module&gt;
-    sys.exit(load_entry_point('pyp2qmd==0.1.0', 'console_scripts', 'pyp2qmd')())
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.9/x64/bin/pyp2qmd", line 25, in importlib_load_entry_point
-    return next(matches).load()
-           ^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/importlib/metadata/__init__.py", line 202, in load
-    module = import_module(match.group('module'))
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "&lt;frozen importlib._bootstrap&gt;", line 1204, in _gcd_import
-  File "&lt;frozen importlib._bootstrap&gt;", line 1176, in _find_and_load
-  File "&lt;frozen importlib._bootstrap&gt;", line 1126, in _find_and_load_unlocked
-  File "&lt;frozen importlib._bootstrap&gt;", line 241, in _call_with_frames_removed
-  File "&lt;frozen importlib._bootstrap&gt;", line 1204, in _gcd_import
-  File "&lt;frozen importlib._bootstrap&gt;", line 1176, in _find_and_load
-  File "&lt;frozen importlib._bootstrap&gt;", line 1140, in _find_and_load_unlocked
-ModuleNotFoundError: No module named 'pyp2qmd.bin'</code></pre>
+<div id="c93cae1b" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-stdout">
+<pre><code>usage: pyp2qmd [-h] [-p PACKAGE] [--overwrite] [--quarto_dir QUARTO_DIR]
+               [--man_dir MAN_DIR] [--output_dir OUTPUT_DIR]
+               [--docstringstyle DOCSTRINGSTYLE] [--include_hidden] [--silent]
+               action
+
+positional arguments:
+  action                Action to perform, one of: init, document
+
+options:
+  -h, --help            show this help message and exit
+  -p PACKAGE, --package PACKAGE
+                        Name of the python package.
+  --overwrite           Only used if action = create; will overwrite
+                        _quarto.yml if needed.
+  --quarto_dir QUARTO_DIR
+                        Name of the target directory for rendered quarto
+                        website. Defaults to "_quarto".
+  --man_dir MAN_DIR     Folder to store the function/class manual qmds
+                        (subfolder of quarto_dir). Defaults to "man".
+  --output_dir OUTPUT_DIR
+                        Name of the target directory for rendered quarto
+                        website,relative to quarto_dir. Defaults to "_site".
+  --docstringstyle DOCSTRINGSTYLE
+                        Docstring type (format). Defaults to "GOOGLE".
+  --include_hidden      If set, hidden functions and methods will also be
+                        documented (functions/methods starting with _ or __).
+  --silent              If set, output will be suppressed.</code></pre>
 </div>
 </div>
 </div>
@@ -260,34 +266,42 @@ ModuleNotFoundError: No module named 'pyp2qmd.bin'</code></pre>
 <section id="file-structure-created" class="level3">
 <h3 class="anchored" data-anchor-id="file-structure-created">File structure created</h3>
 <p>This will create the following structure (for <code>--package pyp2qmd</code>):</p>
-<div id="0c97bde7" class="cell" data-execution_count="2">
+<div id="d1b44750" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stdout">
 <pre><code>_quarto
+├── _quarto.yml
+├── index.qmd
+├── man
+│&nbsp;&nbsp; ├── pyp2qmd.Config.Config.get.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.Config.Config.is_set_up.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.Config.Config.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.Config.Config.setup.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.config_get.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document_classes.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document_functions.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.get_classes.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.get_functions.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.navbar_add_menu.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.navbar_add_page.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.update_quarto_yml.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.config_get.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.fullname.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.get.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.getmembers.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.isclass.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.isfunction.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.quartofile.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.signature.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.write_qmd.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.demofunctions.demofun_allfine.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.demofunctions.demofun_wrong.qmd
+│&nbsp;&nbsp; └── pyp2qmd.demofunctions.demofun_wrong2.qmd
+└── pyp.scss
 
-0 directories, 0 files</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Traceback (most recent call last):
-  File "/opt/hostedtoolcache/Python/3.11.9/x64/bin/pyp2qmd", line 33, in &lt;module&gt;
-    sys.exit(load_entry_point('pyp2qmd==0.1.0', 'console_scripts', 'pyp2qmd')())
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.9/x64/bin/pyp2qmd", line 25, in importlib_load_entry_point
-    return next(matches).load()
-           ^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/importlib/metadata/__init__.py", line 202, in load
-    module = import_module(match.group('module'))
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.9/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "&lt;frozen importlib._bootstrap&gt;", line 1204, in _gcd_import
-  File "&lt;frozen importlib._bootstrap&gt;", line 1176, in _find_and_load
-  File "&lt;frozen importlib._bootstrap&gt;", line 1126, in _find_and_load_unlocked
-  File "&lt;frozen importlib._bootstrap&gt;", line 241, in _call_with_frames_removed
-  File "&lt;frozen importlib._bootstrap&gt;", line 1204, in _gcd_import
-  File "&lt;frozen importlib._bootstrap&gt;", line 1176, in _find_and_load
-  File "&lt;frozen importlib._bootstrap&gt;", line 1140, in _find_and_load_unlocked
-ModuleNotFoundError: No module named 'pyp2qmd.bin'</code></pre>
+1 directory, 30 files</code></pre>
 </div>
 </div>
 <p>The file <code>_quarto.yml</code> contains the template for the quarto website skeleton, <code>index.qmd</code> a template of the websites entry page (home). In addition, <code>pyp.scss</code> with a series of style adjustments.</p>
