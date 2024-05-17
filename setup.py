@@ -3,7 +3,7 @@
 # documentation" package.
 # -------------------------------------------------------------------
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 ISRELEASED  = False
 VERSION     = "0.1.0"
@@ -27,7 +27,7 @@ setup(
         "Operating System :: OS Independent"
     ],
     install_requires     = ["docstring_parser", "pyyaml"],
-    packages             = find_packages("src"),
+    packages             = find_namespace_packages("src"),
     package_dir          = {"": "src"},
     python_requires      = ">=3.8",
     zip_safe             = False,
