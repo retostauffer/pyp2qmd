@@ -44,6 +44,5 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs  # Change to the output directory of your Quarto render
-          ###publish_dir: ./_quarto/_site  # Change to the output directory of your Quarto render
+        publish_dir: ./_quarto/_site  # Change to the output directory of your Quarto render
 
