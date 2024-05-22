@@ -6,4 +6,5 @@
 * Added `MANIFEST.in` to include `templates` files.
 * Added some methods to add `repos_url`/`repos_branch`, `issue_url`,
     custom elements to navbar > right.
+* Added method to add navbar logo and title (or remove eather of if needed).
 

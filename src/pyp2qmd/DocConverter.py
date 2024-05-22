@@ -579,6 +579,40 @@ class DocConverter:
         except Exception as e:
             raise Exception(e)
 
+    def add_logo(self, logo, title):
+        """Adding Logo and/or Title
+
+        Allows to add a logo image and/or change the title.
+
+        Args:
+            logo (str, None): String (image file name) or None. If None,
+                the logo is not set or removed if needed.
+            title (str, None): String (title) or None. If None, title is set false
+                such that it is not shown in navbar.
+        """
+        if not isinstance(logo, (str, type(None))):
+            raise TypeError("argument `logo` must be str or None")
+        if not isinstance(title, (str, type(None))):
+            raise TypeError("argument `title` must be str or None")
+
+        content = self._load_yaml()
+        try:
+            tmp = content["website"]["navbar"]
+        except:
+            raise Exception("_quarto.yml does not contain expected website > navbar")
+
+        if isinstance(title, type(None)):
+            tmp["title"] = False
+        else:
+            tmp["title"] = title
+
+        if isinstance(logo, str):
+            tmp["logo"] = logo
+        elif "logo" in tmp.keys():
+            del tmp["logo"]
+
+        self._save_yaml(content)
+
 
     def _load_yaml(self):
         """Load Existing YML File

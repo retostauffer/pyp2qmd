@@ -14,6 +14,17 @@ $link-color: #4287f5;
     }
 }
 
+// Custom image icons in navbar
+.navbar-nav {
+    .nav-link {
+        img {
+            &.img-fluid {
+                max-height: 1.5em;
+            }   
+        }   
+    }   
+}
+
 // pre code styling
 pre {
     code {
