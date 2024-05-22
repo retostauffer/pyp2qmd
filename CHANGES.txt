@@ -4,4 +4,6 @@
 * Updated version to `0.1.0`; first usable alpha version.
 * Method to add menu, adjusted method to populate menus.
 * Added `MANIFEST.in` to include `templates` files.
+* Added some methods to add `repos_url`/`repos_branch`, `issue_url`,
+    custom elements to navbar > right.
 

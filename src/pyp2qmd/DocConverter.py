@@ -331,8 +331,6 @@ class DocConverter:
         the quarto file has just been initialized and man pages have been
         crated.
         """
-        import yaml                       
-        from os.path import join
 
         n = sum([len(x) for x in self._man_created])
         if not self.config_get("silent"):
@@ -342,9 +340,7 @@ class DocConverter:
             return
 
         # Reading existing yml file
-        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
-        with open(ymlfile, "r") as fid:
-            content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
+        content = self._load_yaml()
             
         content["website"]["sidebar"]["contents"] = []
         # Setting up dictionary for function references
@@ -357,7 +353,7 @@ class DocConverter:
                 content["website"]["sidebar"]["contents"].append(tmp)
 
         # Write back
-        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+        self._save_yaml(content)
 
 
     def add_navbar_page(self, src, dest, text, menu = None):
@@ -390,7 +386,6 @@ class DocConverter:
         """
 
 
-        import yaml
         from re import match
         from os.path import isfile, basename, dirname, join
         from os import makedirs
@@ -429,9 +424,7 @@ class DocConverter:
                     "is False. Consider enabling overwrite. Could result in loss of data!")
 
         # Reading existing yml file
-        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
-        with open(ymlfile, "r") as fid:
-            content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
+        content = self._load_yaml()
 
         # Access existing navbar left. If this fails, it does not exist
         # in the _quarto.yml and an exception will be thrown.
@@ -477,11 +470,34 @@ class DocConverter:
                 break
 
         # Not found? Append at the end.
-        nav.append({"file": dest, "text": text})
+        if not found: nav.append({"file": dest, "text": text})
 
         # Write back
-        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+        self._save_yaml(content)
 
+
+    def add_navbar_right(self, x):
+        """Add Element To Navbar Right
+
+        Allows to add elements to website navbar right.
+        Will add it if not yet existing. Accepts a dict, originally
+        used to add repository logo and link.
+        """
+        if not isinstance(x, dict):
+            raise TypeError("argument `x` is expected to be a dict")
+
+        content = self._load_yaml()
+        try:
+            tmp = content["website"]["navbar"]
+        except:
+            raise Exception("_quarto.yml does not contain website > navbar")
+        try:
+            tmp = content["website"]["navbar"]["right"]
+        except:
+            tmp["right"] = []
+        tmp["right"].append(x)
+
+        self._save_yaml(content)
 
     def add_navbar_menu(self, menu):
         """Add Dropdown Menu to Navigation
@@ -497,17 +513,14 @@ class DocConverter:
         """
 
 
-        import yaml
         from re import match
-        from os.path import isfile, basename, join
+        from os.path import isfile, basename
 
         if not isinstance(menu, str):
             raise TypeError("argument `menu` must be str")
 
         # Reading existing yml file
-        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
-        with open(ymlfile, "r") as fid:
-            content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
+        content = self._load_yaml()
 
         # Check for menus
         found = False
@@ -525,7 +538,7 @@ class DocConverter:
             content["website"]["navbar"]["left"].append(tmp)
 
         # Write back
-        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+        self._save_yaml()
 
 
     def add_favicon(self, file):
@@ -539,7 +552,6 @@ class DocConverter:
             FileNotFoundError: If `file` does not point to an existing file.
         """
 
-        import yaml
         from re import match
         from os.path import isfile, basename, join
         from shutil import copy
@@ -550,21 +562,100 @@ class DocConverter:
             raise FileNotFoundError(f"file \"{f}\" not found on disc")
 
         # Reading existing yml file
-        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
-        with open(ymlfile, "r") as fid:
-            content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
+        content = self._load_yaml()
 
         # Try to find the 'website' section where we will add this option
         content["website"]["favicon"] = basename(file)
 
         # Write back
-        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+        self._save_yaml(content)
 
         # Copy src file to dest_path using shutil
         try:
-            copy(src, join(self.config_get("quarto_dir"), basename(file)))
+            copy(file, join(self.config_get("quarto_dir"), basename(file)))
         except Exception as e:
             raise Exception(e)
 
 
+    def _load_yaml(self):
+        """Load Existing YML File
+
+        Loads the existing _quarto.yml file.
+        """
+        from os.path import join
+        import yaml
+        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
+        with open(ymlfile, "r") as fid:
+            content = yaml.load("".join(fid.readlines()), yaml.SafeLoader)
+        return content
+
+
+    def _save_yaml(self, content):
+        """Save (Updated) YML File
+
+        Writes the dictionary back to `_quarto.yml`.
+        """
+        from os.path import join
+        import yaml
+        assert isinstance(content, dict), TypeError("argument `content` expected to be dict")
+        ymlfile = join(self.config_get('quarto_dir'), "_quarto.yml")
+        with open(ymlfile, "w+") as fid: fid.write(yaml.dump(content))
+
+
+    def _add_website_option(self, key, value):
+        assert isinstance(key, str), TypeError("argument `key` must be str")
+        assert isinstance(value, str), TypeError("argument `value` must be str")
+
+        content = self._load_yaml()
+
+        # Access existing navbar left. If this fails, it does not exist
+        # in the _quarto.yml and an exception will be thrown.
+        try:
+            tmp = content["website"]
+        except:
+            raise Exception(f"\"{ymlfile}\" does not contain website > navbar > left")
+
+        tmp[key] = value
+        self._save_yaml(content)
+
+    def add_repo_url(self, url, branch = "main"):
+        """Adding Soruce Code Repository URL
+
+        Args:
+            url (str): URL (e.g., to the github repository).
+            branch (str): Branch name, defaults to "main".
+
+        Raises:
+            TypeError: If `url` or `branch` are not str.
+            ValueError: If `url` does not look like a URL.
+        """
+
+        from re import match
+
+        if not isinstance(url, str): raise TypeError("argument `url` must be str")
+        if not isinstance(branch, str): raise TypeError("argument `url` must be str")
+        if not match("^https?:\/\/", url):
+            raise ValueError(f"url (\"{url}\") does not look like a valid URL")
+
+        self._add_website_option("repo-url", url)
+        self._add_website_option("repo-branch", branch)
+
+    def add_issue_url(self, url):
+        """Adding URL to Issue Trackign Page
+
+        Args:
+            url (str): URL (e.g., to the github issues page).
+
+        Raises:
+            TypeError: If `url` is not str.
+            ValueError: If `url` does not look like a URL.
+        """
+
+        from re import match
+
+        if not isinstance(url, str): raise TypeError("argument `url` must be str")
+        if not match("^https?:\/\/", url):
+            raise ValueError(f"url (\"{url}\") does not look like a valid URL")
+
+        self._add_website_option("issue-url", url)
 

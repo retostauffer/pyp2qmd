@@ -7,6 +7,13 @@ $link-color: #4287f5;
 
 /*-- scss:custom --*/
 
+// image styling in quarto code cell output
+.quarto-layout-cell {
+    img {
+        height: 100%;
+    }
+}
+
 // pre code styling
 pre {
     code {

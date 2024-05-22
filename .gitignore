@@ -4,6 +4,7 @@
 # Python virtualenv and build
 /venv
 /build
+/dist
 
 # Quarto source and rendered content
 /_quarto
