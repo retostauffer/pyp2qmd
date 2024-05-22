@@ -491,11 +491,14 @@ class DocConverter:
             tmp = content["website"]["navbar"]
         except:
             raise Exception("_quarto.yml does not contain website > navbar")
+
         try:
             tmp = content["website"]["navbar"]["right"]
         except:
+            # Initialize empty list element
             tmp["right"] = []
-        tmp["right"].append(x)
+            tmp = tmp["right"]
+        tmp.append(x)
 
         self._save_yaml(content)
 
