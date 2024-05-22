@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>pyp2qmd – Documentation Converter</title>
+<title>pyp2qmd – Adding Logo and/or Title</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -118,7 +118,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/pyp2qmd.Config.Config.html">Class references</a></li><li class="breadcrumb-item"><a href="../man/pyp2qmd.DocConverter.DocConverter.html">DocConverter</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Adding Logo and/or Title</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -161,13 +161,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
  <span class="menu-text">Class references</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../man/pyp2qmd.Config.Config.html" class="sidebar-item-text sidebar-link">
@@ -176,7 +176,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../man/pyp2qmd.DocConverter.DocConverter.html" class="sidebar-item-text sidebar-link active">
+  <a href="../man/pyp2qmd.DocConverter.DocConverter.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">DocConverter</span></a>
   </div>
 </li>
@@ -197,9 +197,9 @@ ul.task-list li input[type="checkbox"] {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../man/pyp2qmd.Config.Config.html">Class references</a></li><li class="breadcrumb-item"><a href="../man/pyp2qmd.DocConverter.DocConverter.html">DocConverter</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Documentation Converter</h1>
+<h1 class="title">Adding Logo and/or Title</h1>
 </div>
 
 
@@ -218,125 +218,28 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="description" class="level3">
 <h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>This is the main class of the package which will extract the docstrings of all exported classes and functions of an installed python package, and convert them into quarto markdown files (thus pyp2qmd; python package to quarto markdown).</p>
-<p>The <a href="../man/pyp2qmd.Config.Config.html">Config</a> contains all the required arguments/settings to perform this task and is, thus, the only reqired input argument.</p>
+<p>Allows to add a logo image and/or change the title.</p>
 </section>
 <section id="usage" class="level3">
 <h3 class="anchored" data-anchor-id="usage">Usage</h3>
-<pre><code class="language-python">DocConverter(config)</code></pre>
+<pre><code class="language-python">DocConverter.add_logo(logo, title)</code></pre>
 </section>
 <section id="arguments" class="level3">
 <h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
 <dl class="pyp-list param-list">
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.DocConverter.DocConverter:config">escape(config)</code><code class="argument-class">Config</code>
+<code id="pyp2qmd.DocConverter.DocConverter.add_logo:logo">escape(logo)</code><code class="argument-class">str, None</code>
 </dt>
 <dd>
-escape(See <a href="../man/pyp2qmd.Config.Config.html">Config</a> for details; must be set up properly.)
+escape(String (image file name) or None. If None, the logo is not set or removed if needed.)
+</dd>
+<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
+<code id="pyp2qmd.DocConverter.DocConverter.add_logo:title">escape(title)</code><code class="argument-class">str, None</code>
+</dt>
+<dd>
+escape(String (title) or None. If None, title is set false such that it is not shown in navbar.)
 </dd>
 </dl>
-</section>
-<section id="methods" class="level3">
-<h3 class="anchored" data-anchor-id="methods">Methods</h3>
-<dl class="pyp-list method-list">
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.add_favicon.html">DocConverter.add_favicon(file)</a></code>
-</dt>
-<dd>
-Add Favicon
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.add_issue_url.html">DocConverter.add_issue_url(url)</a></code>
-</dt>
-<dd>
-Adding URL to Issue Trackign Page
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.add_logo.html">DocConverter.add_logo(logo, title)</a></code>
-</dt>
-<dd>
-Adding Logo and/or Title
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.add_navbar_menu.html">DocConverter.add_navbar_menu(menu)</a></code>
-</dt>
-<dd>
-Add Dropdown Menu to Navigation
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.add_navbar_page.html">DocConverter.add_navbar_page(src, dest, text, menu=None)</a></code>
-</dt>
-<dd>
-Add Page to Navigation
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.add_navbar_right.html">DocConverter.add_navbar_right(x)</a></code>
-</dt>
-<dd>
-Add Element To Navbar Right
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.add_repo_url.html">DocConverter.add_repo_url(url, branch='main')</a></code>
-</dt>
-<dd>
-Adding Soruce Code Repository URL
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.config_get.html">DocConverter.config_get(what)</a></code>
-</dt>
-<dd>
-Get Config Attribute
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.document.html">DocConverter.document()</a></code>
-</dt>
-<dd>
-Document All
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.document_classes.html">DocConverter.document_classes()</a></code>
-</dt>
-<dd>
-Document Classes
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.document_functions.html">DocConverter.document_functions()</a></code>
-</dt>
-<dd>
-Document Functions
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.get_classes.html">DocConverter.get_classes(names_only=False)</a></code>
-</dt>
-<dd>
-Get Exported Classes
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.get_functions.html">DocConverter.get_functions(names_only=False)</a></code>
-</dt>
-<dd>
-Get Exported Functions
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code><a href="../man/pyp2qmd.DocConverter.DocConverter.update_quarto_yml.html">DocConverter.update_quarto_yml()</a></code>
-</dt>
-<dd>
-Update Quarto
-</dd>
-</dl>
-</section>
-<section id="raises" class="level3">
-<h3 class="anchored" data-anchor-id="raises">Raises</h3>
-<ul class="python-raises">
-<li>
-<code class="text-warning">TypeError</code>: If <code>config</code> is not of class <a href="../man/pyp2qmd.Config.Config.html">Config</a>.
-</li><li>
-<code class="text-warning">Exception</code>: If <code>config</code> object is not set up properly.
-</li><li>
-<code class="text-warning">Exception</code>: If the package which should be documented is not found (can't be imported).
-</li><li>
-<code class="text-warning">ValueError</code>: If package <code>docstring_parser</code> has no <code>DocstringStyle</code> class matching the docstringstyle defined by the user (handled as 'all upper case').
-</li></ul>
 
 
 </section>
