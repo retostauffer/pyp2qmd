@@ -3,7 +3,6 @@
 def main():
     from os.path import join, basename, dirname
     from pyp2qmd import Config, DocConverter
-    from shutil import copy
 
     # Get path to this file
     abspath = dirname(__file__)
@@ -25,14 +24,12 @@ def main():
     src = join(abspath, "design_philosophy.qmd")
     docconv.add_navbar_page(src, basename(src), "Design philosophy")
 
-    # Copy file
-    src = join(abspath, "github-mark.svg")
-    copy(src, join(config.get("quarto_dir"), "github-mark.svg"))
-
     # Adding favicon
+    docconv.add_favicon(join(abspath, "favicon.png"))
+
+    # Adding repo and issue URL + github icon
     repo_url    = "https://github.com/retostauffer/pyp2qmd"
     repo_branch = "main"
-    docconv.add_favicon(join(abspath, "favicon.png"))
     docconv.add_repo_url(repo_url, repo_branch)
     docconv.add_issue_url("https://github.com/retostauffer/pyp2qmd/issues")
 

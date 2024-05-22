@@ -538,7 +538,7 @@ class DocConverter:
             content["website"]["navbar"]["left"].append(tmp)
 
         # Write back
-        self._save_yaml()
+        self._save_yaml(content)
 
 
     def add_favicon(self, file):
