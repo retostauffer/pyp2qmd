@@ -30,6 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./favicon.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -98,6 +99,13 @@ ul.task-list li input[type="checkbox"] {
   <li class="nav-item">
     <a class="nav-link" href="./design_philosophy.html"> 
 <span class="menu-text">Design philosophy</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/retostauffer/pyp2qmd/tree/main"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -229,7 +237,7 @@ pyp2qmd init --package &lt;name_of_package&gt;</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <pre><code>pyp2qmd --help</code></pre>
-<div id="c93cae1b" class="cell" data-execution_count="1">
+<div id="f5b6c434" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
 <pre><code>usage: pyp2qmd [-h] [-p PACKAGE] [--overwrite] [--quarto_dir QUARTO_DIR]
                [--man_dir MAN_DIR] [--output_dir OUTPUT_DIR]
@@ -266,7 +274,7 @@ options:
 <section id="file-structure-created" class="level3">
 <h3 class="anchored" data-anchor-id="file-structure-created">File structure created</h3>
 <p>This will create the following structure (for <code>--package pyp2qmd</code>):</p>
-<div id="d1b44750" class="cell" data-execution_count="2">
+<div id="442377d3" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stdout">
 <pre><code>_quarto
 ├── _quarto.yml
@@ -276,14 +284,18 @@ options:
 │&nbsp;&nbsp; ├── pyp2qmd.Config.Config.is_set_up.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.Config.Config.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.Config.Config.setup.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_favicon.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_issue_url.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_navbar_menu.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_navbar_page.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_navbar_right.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_repo_url.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.config_get.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document_classes.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document_functions.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.get_classes.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.get_functions.qmd
-│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.navbar_add_menu.qmd
-│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.navbar_add_page.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.update_quarto_yml.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.config_get.qmd
@@ -301,7 +313,7 @@ options:
 │&nbsp;&nbsp; └── pyp2qmd.demofunctions.demofun_wrong2.qmd
 └── pyp.scss
 
-1 directory, 30 files</code></pre>
+1 directory, 34 files</code></pre>
 </div>
 </div>
 <p>The file <code>_quarto.yml</code> contains the template for the quarto website skeleton, <code>index.qmd</code> a template of the websites entry page (home). In addition, <code>pyp.scss</code> with a series of style adjustments.</p>
@@ -333,9 +345,9 @@ def main():
 
     # Adding test page
     src = join("make_docs", "getting_started.qmd")
-    docconv.navbar_add_page(src, basename(src), "Getting started")
+    docconv.add_navbar_page(src, basename(src), "Getting started")
     src = join("make_docs", "designg_philosphy.qmd")
-    docconv.navbar_add_page(src, basename(src), "Design philosophy")
+    docconv.add_navbar_page(src, basename(src), "Design philosophy")
 
 if __name__ == "__main__":
     main()</code></pre>
@@ -769,4 +781,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

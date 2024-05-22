@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>pyp2qmd – Document Classes</title>
+<title>pyp2qmd – Add Favicon</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -118,7 +118,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Document Classes</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Add Favicon</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -199,7 +199,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Document Classes</h1>
+<h1 class="title">Add Favicon</h1>
 </div>
 
 
@@ -216,13 +216,30 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="description" class="level3">
-<h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>Generates man pages for all exported classes.</p>
-</section>
+<p>WARNING(long_description missing)</p>
 <section id="usage" class="level3">
 <h3 class="anchored" data-anchor-id="usage">Usage</h3>
-<pre><code class="language-python">DocConverter.document_classes()</code></pre>
+<pre><code class="language-python">DocConverter.add_favicon(file)</code></pre>
+</section>
+<section id="arguments" class="level3">
+<h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
+<dl class="pyp-list param-list">
+<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
+<code id="pyp2qmd.DocConverter.DocConverter.add_favicon:file">escape(file)</code><code class="argument-class">str</code>
+</dt>
+<dd>
+escape(File name of parth to the favicon (png, jpg).)
+</dd>
+</dl>
+</section>
+<section id="raises" class="level3">
+<h3 class="anchored" data-anchor-id="raises">Raises</h3>
+<ul class="python-raises">
+<li>
+<code class="text-warning">TypeError</code>: If <code>file</code> is not str.
+</li><li>
+<code class="text-warning">FileNotFoundError</code>: If <code>file</code> does not point to an existing file.
+</li></ul>
 
 
 </section>

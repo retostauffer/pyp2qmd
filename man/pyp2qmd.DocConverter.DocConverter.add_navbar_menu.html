@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>pyp2qmd – Add Page to Navigation</title>
+<title>pyp2qmd – Add Dropdown Menu to Navigation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,6 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -100,6 +101,13 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Design philosophy</span></a>
   </li>  
 </ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/retostauffer/pyp2qmd/tree/main"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
@@ -110,7 +118,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Add Page to Navigation</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Add Dropdown Menu to Navigation</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -191,7 +199,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Add Page to Navigation</h1>
+<h1 class="title">Add Dropdown Menu to Navigation</h1>
 </div>
 
 
@@ -210,38 +218,20 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="description" class="level3">
 <h3 class="anchored" data-anchor-id="description">Description</h3>
-<p>Adds page to website navbar left. Will be added to the _quarto.yml file if not yet included. Will place the source file (qmd) in the quarto output folder under name <code>dest</code> and linked in the navigation as <code>text</code>.</p>
+<p>Adds a menu (dropdown menu) to the top navigation which can be populated with a series of pages. Will only be added if not yet existing.</p>
 </section>
 <section id="usage" class="level3">
 <h3 class="anchored" data-anchor-id="usage">Usage</h3>
-<pre><code class="language-python">DocConverter.navbar_add_page(src, dest, text,<br>                             menu=None)</code></pre>
+<pre><code class="language-python">DocConverter.add_navbar_menu(menu)</code></pre>
 </section>
 <section id="arguments" class="level3">
 <h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
 <dl class="pyp-list param-list">
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.DocConverter.DocConverter.navbar_add_page:src">escape(src)</code><code class="argument-class">str</code>
+<code id="pyp2qmd.DocConverter.DocConverter.add_navbar_menu:menu">escape(menu)</code><code class="argument-class">str</code>
 </dt>
 <dd>
-escape(Path to an existing quarto file, must end in <code>.qmd</code>.)
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.DocConverter.DocConverter.navbar_add_page:dest">escape(dest)</code><code class="argument-class">str</code>
-</dt>
-<dd>
-escape(Name or path for target quarto file. If path, the directory will be created inside <code>quarto_dir</code> as specified in the config (see <a href="../man/pyp2qmd.DocConverter.DocConverter.html">DocConverter</a>) if not yet existing.)
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.DocConverter.DocConverter.navbar_add_page:text">escape(text)</code><code class="argument-class">str</code>
-</dt>
-<dd>
-escape(Name used in the navigation.)
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.DocConverter.DocConverter.navbar_add_page:menu">escape(menu)</code><code class="argument-class">None, str</code>
-</dt>
-<dd>
-escape(Must be <code>None</code> if pages are added. If set, it is expected that a menu with this name exists. The page will then be added to that menu if not already in there.)
+escape(Name of the dropdown menu.)
 </dd>
 </dl>
 </section>
@@ -249,19 +239,7 @@ escape(Must be <code>None</code> if pages are added. If set, it is expected that
 <h3 class="anchored" data-anchor-id="raises">Raises</h3>
 <ul class="python-raises">
 <li>
-<code class="text-warning">TypeError</code>: If <code>src</code>, <code>dest</code>, <code>text</code> are not str.
-</li><li>
-<code class="text-warning">ValueError</code>: If <code>src</code> and <code>dest</code> do not end in <code>.qmd</code>
-</li><li>
-<code class="text-warning">ValueError</code>: If <code>dest</code> is a path, not only the name of the target quarto file.
-</li><li>
-<code class="text-warning">FileNotFoundError</code>: If <code>src</code> does not exist.
-</li><li>
-<code class="text-warning">TypeError</code>: If <code>menu</code> is not <code>None</code> nor <code>str</code>.
-</li><li>
-<code class="text-warning">Exception</code>: If <code>dest</code> already exists but overwrite is set <code>False</code> (see <a href="../man/pyp2qmd.DocConverter.DocConverter.html">DocConverter</a>).
-</li><li>
-<code class="text-warning">Exception</code>: if <code>src</code> cannot be copied to destination.
+<code class="text-warning">TypeError</code>: If <code>menu</code> is not str.
 </li></ul>
 
 
@@ -693,4 +671,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-</body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
