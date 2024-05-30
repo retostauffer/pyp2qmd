@@ -3,6 +3,7 @@ execute:
   freeze: auto
 format:
   html:
+    toc: true
     theme:
     - quarto
     - pyp.scss

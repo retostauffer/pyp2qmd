@@ -696,3 +696,32 @@ class DocConverter:
 
         self._add_website_option("issue-url", url)
 
+
+    def add_scss(self, file):
+        from os.path import isfile, join
+        if not isinstance(file, str):
+            raise TypeError("argument `file` must be str")
+        elif not isfile(join(self.config_get("quarto_dir"), file)):
+            raise FileNotFoundError(f"missing \"{join(self.config_get('quarto_dir'), file)}\"")
+
+        content = self._load_yaml()
+
+        # Access existing navbar left. If this fails, it does not exist
+        # in the _quarto.yml and an exception will be thrown.
+        try:
+            tmp = content["format"]["html"]["theme"]
+        except:
+            raise Exception(f"\"{ymlfile}\" does not contain format > html > theme")
+
+        # Append in second position
+        if not file in tmp:
+            if not isinstance(tmp, list) or len(tmp) == 0:
+                content["format"]["html"]["theme"] = [file]
+            else:
+                content["format"]["html"]["theme"] = [tmp[0], file] + tmp[1:]
+
+        self._save_yaml(content)
+
+
+
+

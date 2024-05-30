@@ -240,9 +240,9 @@ class ManPage:
             #short_arg = re.search("^([\*\w]+)", arg.args[1]).group(1).replace("*", "")
             # Building html table row
             res += "  <dt style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
-                   f"   <code id=\"{self.fullname()}:{arg_name}\">escape({arg_name})</code>{arg_cls}\n" + \
+                   f"   <code id=\"{self.fullname()}:{arg_name}\">{escape(arg_name)}</code>{arg_cls}\n" + \
                    "  </dt>\n" + \
-                   f" <dd>escape({self._add_references(arg.description)})</dd>\n"
+                   f" <dd>{escape(self._add_references(arg.description))}</dd>\n"
 
         res += "</dl>"
 
