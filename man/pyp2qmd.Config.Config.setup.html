@@ -71,7 +71,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-sidebar floating nav-fixed fullcontent">
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -193,7 +193,18 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a></li>
+  <li><a href="#usage" id="toc-usage" class="nav-link" data-scroll-target="#usage">Usage</a></li>
+  <li><a href="#arguments" id="toc-arguments" class="nav-link" data-scroll-target="#arguments">Arguments</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -229,58 +240,58 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
 <dl class="pyp-list param-list">
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:action">escape(action)</code><code class="argument-class">str</code>
+<code id="pyp2qmd.Config.Config.setup:action">action</code><code class="argument-class">str</code>
 </dt>
 <dd>
-escape(Action to be executed. One of <code>"init"</code> or <code>"document"</code>, see method description.)
+Action to be executed. One of <code>&amp;quot;init&amp;quot;</code> or <code>&amp;quot;document&amp;quot;</code>, see method description.
 </dd>
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:package">escape(package)</code><code class="argument-class">str</code>
+<code id="pyp2qmd.Config.Config.setup:package">package</code><code class="argument-class">str</code>
 </dt>
 <dd>
-escape(Name of the package which should be documented.)
+Name of the package which should be documented.
 </dd>
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:quarto_dir">escape(quarto_dir)</code><code class="argument-class">str</code>
+<code id="pyp2qmd.Config.Config.setup:quarto_dir">quarto_dir</code><code class="argument-class">str</code>
 </dt>
 <dd>
-escape(Output directory, defaults to <code>"_quarto"</code>.)
+Output directory, defaults to <code>&amp;quot;_quarto&amp;quot;</code>.
 </dd>
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:man_dir">escape(man_dir)</code><code class="argument-class">str</code>
+<code id="pyp2qmd.Config.Config.setup:man_dir">man_dir</code><code class="argument-class">str</code>
 </dt>
 <dd>
-escape(Name of the directory for the manual pages (subfolder inside <code>quarto_dir</code>), defaults to <code>"man"</code>.)
+Name of the directory for the manual pages (subfolder inside <code>quarto_dir</code>), defaults to <code>&amp;quot;man&amp;quot;</code>.
 </dd>
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:output_dir">escape(output_dir)</code><code class="argument-class">str</code>
+<code id="pyp2qmd.Config.Config.setup:output_dir">output_dir</code><code class="argument-class">str</code>
 </dt>
 <dd>
-escape(Directory for the rendered quarto website, used as <code>output-dir</code> target in <code>_quarto.yml</code>, relative to <code>quarto_dir</code>. Defaults to <code>"_site"</code>.)
+Directory for the rendered quarto website, used as <code>output-dir</code> target in <code>_quarto.yml</code>, relative to <code>quarto_dir</code>. Defaults to <code>&amp;quot;_site&amp;quot;</code>.
 </dd>
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:overwrite">escape(overwrite)</code><code class="argument-class">bool</code>
+<code id="pyp2qmd.Config.Config.setup:overwrite">overwrite</code><code class="argument-class">bool</code>
 </dt>
 <dd>
-escape(Only used if <code>action = "init"</code>, see method description.)
+Only used if <code>action = &amp;quot;init&amp;quot;</code>, see method description.
 </dd>
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:include_hidden">escape(include_hidden)</code><code class="argument-class">bool</code>
+<code id="pyp2qmd.Config.Config.setup:include_hidden">include_hidden</code><code class="argument-class">bool</code>
 </dt>
 <dd>
-escape(If <code>False</code> (default), classes, functions, and methods starting with an underscore will not be documented (no quarto man pages will be crated). Dunder classes, functions, and methods are always excluded.)
+If <code>False</code> (default), classes, functions, and methods starting with an underscore will not be documented (no quarto man pages will be crated). Dunder classes, functions, and methods are always excluded.
 </dd>
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:docstringstyle">escape(docstringstyle)</code><code class="argument-class">str</code>
+<code id="pyp2qmd.Config.Config.setup:docstringstyle">docstringstyle</code><code class="argument-class">str</code>
 </dt>
 <dd>
-escape(Style of the docstrings in the package, must be one of the allowed types of the <code>docstring_parser</code> package (AUTO, EPYDOC, GOOGLE, NUMPYDOC, REST), defaults to <code>"GOOGLE"</code>; not case sensitive.)
+Style of the docstrings in the package, must be one of the allowed types of the <code>docstring_parser</code> package (AUTO, EPYDOC, GOOGLE, NUMPYDOC, REST), defaults to <code>&amp;quot;GOOGLE&amp;quot;</code>; not case sensitive.
 </dd>
 <dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:silent">escape(silent)</code><code class="argument-class">bool</code>
+<code id="pyp2qmd.Config.Config.setup:silent">silent</code><code class="argument-class">bool</code>
 </dt>
 <dd>
-escape(If <code>False</code> (default) some output will be produced when rendering the man pages. Can be specified to silence the execution.)
+If <code>False</code> (default) some output will be produced when rendering the man pages. Can be specified to silence the execution.
 </dd>
 </dl>
 </section>
@@ -722,4 +733,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

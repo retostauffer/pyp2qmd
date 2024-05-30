@@ -71,7 +71,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-sidebar floating nav-fixed fullcontent">
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -193,7 +193,19 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#documentation-skeleton-via-console" id="toc-documentation-skeleton-via-console" class="nav-link active" data-scroll-target="#documentation-skeleton-via-console">Documentation skeleton via console</a>
+  <ul class="collapse">
+  <li><a href="#file-structure-created" id="toc-file-structure-created" class="nav-link" data-scroll-target="#file-structure-created">File structure created</a></li>
+  </ul></li>
+  <li><a href="#documentation-via-script" id="toc-documentation-via-script" class="nav-link" data-scroll-target="#documentation-via-script">Documentation via script</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -237,7 +249,7 @@ pyp2qmd init --package &lt;name_of_package&gt;</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <pre><code>pyp2qmd --help</code></pre>
-<div id="5bd13039" class="cell" data-execution_count="1">
+<div id="1c59e983" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
 <pre><code>usage: pyp2qmd [-h] [-p PACKAGE] [--overwrite] [--quarto_dir QUARTO_DIR]
                [--man_dir MAN_DIR] [--output_dir OUTPUT_DIR]
@@ -274,7 +286,7 @@ options:
 <section id="file-structure-created" class="level3">
 <h3 class="anchored" data-anchor-id="file-structure-created">File structure created</h3>
 <p>This will create the following structure (for <code>--package pyp2qmd</code>):</p>
-<div id="c051da41" class="cell" data-execution_count="2">
+<div id="a34ddef5" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stdout">
 <pre><code>_quarto
 ├── _quarto.yml
@@ -291,6 +303,7 @@ options:
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_navbar_page.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_navbar_right.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_repo_url.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.add_scss.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.config_get.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document_classes.qmd
@@ -314,7 +327,7 @@ options:
 │&nbsp;&nbsp; └── pyp2qmd.demofunctions.demofun_wrong2.qmd
 └── pyp.scss
 
-1 directory, 35 files</code></pre>
+1 directory, 36 files</code></pre>
 </div>
 </div>
 <p>The file <code>_quarto.yml</code> contains the template for the quarto website skeleton, <code>index.qmd</code> a template of the websites entry page (home). In addition, <code>pyp.scss</code> with a series of style adjustments.</p>
@@ -782,4 +795,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
