@@ -242,7 +242,8 @@ class ManPage:
             res += "  <dt style = \"white-space: nowrap; font-family: monospace; vertical-align: top\">\n" + \
                    f"   <code id=\"{self.fullname()}:{arg_name}\">{escape(arg_name)}</code>{arg_cls}\n" + \
                    "  </dt>\n" + \
-                   f" <dd>{escape(self._add_references(arg.description))}</dd>\n"
+                   f" <dd>{self._add_references(arg.description)}</dd>\n"
+                   ####f" <dd>{escape(self._add_references(arg.description))}</dd>\n"
 
         res += "</dl>"
 

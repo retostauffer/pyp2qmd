@@ -31,9 +31,17 @@ install:
 	python setup.py clean --all && pip install -e .
 
 
-installcolorspace:
-	venv/bin/pip uninstall -y colorspace
-	venv/bin/python -m pip install ../python-colorspace
+# Makes use of the token/config stored in $HOME/.pypirc
+sdist:
+	python setup.py sdist
+
+testpypi:
+	make sdist
+	twine upload --verbose --repository testpypi dist/*
+
+pypirelease:
+	make sdist
+	twine upload --verbose --repository pypi dist/*
 
 .PHONY: document
 document:
