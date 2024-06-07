@@ -104,14 +104,19 @@ class ManPage:
         formatting of signature to get some line breaks in output
         """
 
+        from re import compile
         from html import escape
 
         n = max_length - len(name) - 1
         formatted_params = []
         tmp = []
 
+        # Replacing '<lambda> at [memory pointer]>' with <lambda>
+        relambda = compile("<lambda>\s+at\s+\w+>")
+
         for k,p in self._signature.parameters.items():
-            p = escape(str(p)) # Escape html chars
+            # Removing lambda function mem addr, excaping html chars
+            p = escape(relambda.sub(r"<lambda>>", str(p)))
             if remove_self and k == "self": continue
             tmp_len = max(0, sum([len(x) for x in tmp]) + (len(tmp) - 1) * 2)
             if (tmp_len + len(p) + 1) <= n:
