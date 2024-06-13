@@ -196,6 +196,31 @@ class ManPage:
         # Return name of the qmd; used for linking
         return qmd
 
+    def write_examples_qmd(self):
+
+        from os.path import isfile, isdir
+        from os import makedirs
+        import tempfile
+        import filecmp
+
+        # No examples? Nothing to do!
+        if not self.get("examples"): return None
+
+        # Trying to create examples_dir if needed    
+        if not isdir(self.config_get("examples_dir")):
+            try:
+                makedirs(self.config_get("examples_dir"))
+            except Exception as e:
+                raise Exception(f"cannot create {self.config_get('examples_dir')}: {e}")
+
+        qmd      = f"{self.config_get('examples_dir')}/{self.quartofile()}"
+        examples = self.get_example_qmd()
+
+        with open(qmd, "w+") as fid: print(examples, file = fid)
+        
+        # Return name of the qmd; used for linking
+        return qmd
+
 
     def __repr_args(self):
 
@@ -342,6 +367,31 @@ class ManPage:
  
         return res
 
+    def get_example_qmd(self):
+        import re
+
+        if self.get("short_description") is None:
+            res  = "---\ntitle: \"WARNING(short_description missing)\"\n---\n\n"
+        else:
+            res  = "---\ntitle: \"" + \
+                   self._add_references(self.get("short_description")) + \
+                   "\"\n---\n\n"
+
+        # If we have examples:
+        if self.get("examples"):
+            examples = []
+            for tmp in [ex.description for ex in self.get("examples")]:
+                # Prepare example and possibly split it.
+                tmp       = self._prepare_example(tmp)
+                examples += self._split_example(tmp)
+
+            res += "\n\n### Examples\n\n"
+            for tmp in examples:
+                res += self.__repr_examples(tmp, warning = False, error = False)
+            res += "\n"
+
+        return res
+
     def _add_references(self, x):
         import re
         if x is None: return x
@@ -376,15 +426,21 @@ class ManPage:
         return x
 
 
-    def __repr_examples(self, x):
+    def __repr_examples(self, x, warning = True, error = True):
         from re import sub, MULTILINE
         assert isinstance(x, str)
+        assert isinstance(warning, bool)
+        assert isinstance(error, bool)
         res = "```{python}\n" + \
-              "#| echo: true\n" + \
-              "#| error: true\n" + \
-              "#| warning: true\n" + \
-              sub("^#:", "#", x, flags = MULTILINE) + \
-              "\n```\n\n"
+              "#| echo: true\n"
+
+        if warning:
+            res += "#| warning: true\n"
+        if error:
+            res += "#| error: true\n"
+
+        res += sub("^#:", "#", x, flags = MULTILINE) + \
+               "\n```\n\n"
         return res
 
 

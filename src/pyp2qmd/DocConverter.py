@@ -288,9 +288,23 @@ class DocConverter:
             man = ManPage(name, cls, self._config)
             self._man_created["function"][name] = man.write_qmd()
     
+    def examples_functions(self):
+        """Examples of Functions
+
+        Extracts examples from the functions docstring (if any)
+        and writes a dedicated quarto markdown (qmd) file which can be
+        used to see if the examples run without errors.
+        """
+        from .ManPage import ManPage
+
+        for name,cls in self.get_functions().items():
+            if not self.config_get("silent"):
+                print(f"Create example qmd for function {name}")
+            man = ManPage(name, cls, self._config)
+            man.write_examples_qmd()
 
     def document_classes(self):
-        """Document Classes
+        """Examples of Classes and Methods
 
         Generates man pages for all exported classes.
         """
@@ -299,7 +313,7 @@ class DocConverter:
 
         for name,cls in self.get_classes().items():
             if not self.config_get("silent"):
-                print(f"Create man page for class {name}")
+                print(f"Create example qmd for class {name}")
             man = ManPage(name, cls, self._config)
             self._man_created["class"][name] = man.write_qmd()
 
@@ -310,8 +324,32 @@ class DocConverter:
                     print(f"   + method page for {name}")
                 parent = sub(r"\.[^.]*$", "", man.fullname())
                 m_man = ManPage(name, meth, self._config, parent = parent)
-                self._man_created["method"][name] = m_man.write_qmd()
+                m_man.write_qmd()
 
+    def examples_classes(self):
+        """Document Classes
+
+        Extracts examples from the classes and methods docstrings (if any)
+        and writes a dedicated quarto markdown (qmd) file which can be
+        used to see if the examples run without errors.
+        """
+        from .ManPage import ManPage
+        from re import sub
+
+        for name,cls in self.get_classes().items():
+            if not self.config_get("silent"):
+                print(f"Create man page for class {name}")
+            man = ManPage(name, cls, self._config)
+            man.write_examples_qmd()
+
+            for name,meth in man.getmembers():
+                if not self.config_get("include_hidden") and meth.__name__.startswith("_"):
+                    continue
+                if not self.config_get("silent"):
+                    print(f"   + method page for {name}")
+                parent = sub(r"\.[^.]*$", "", man.fullname())
+                m_man = ManPage(name, meth, self._config, parent = parent)
+                m_man.write_examples_qmd()
 
     def document(self):
         """Document All
@@ -322,6 +360,16 @@ class DocConverter:
         self.document_functions()
         self.document_classes()
 
+    def examples(self):
+        """Extract Examples
+
+        Will extract all examples from the docstrings of the exported functions,
+        classes, and methods and create dedicated quarto markdown files (qmd) for each
+        of them. Only contains the example code. Used to quarto render all examples
+        to see if any of them break.
+        """
+        self.examples_functions()
+        self.examples_classes()
     
     def update_quarto_yml(self):
         """Update Quarto

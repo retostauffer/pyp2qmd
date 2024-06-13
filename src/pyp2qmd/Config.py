@@ -32,10 +32,12 @@ class Config:
     def __parse_arguments(self):
 
         # Allowed action options
-        allowed_action = ["init", "document"]
+        allowed_action = ["init", "document", "examples"]
 
         import argparse
+        import sys
         from re import search
+
         pkg_name = search(r"^(.*?)(?=\.)", self.__module__).group(1)
         parser = argparse.ArgumentParser(pkg_name)
         parser.add_argument("action", nargs = 1, type = str,
@@ -58,6 +60,9 @@ class Config:
         parser.add_argument("--include_hidden", default = False, action = "store_true",
                 help = "If set, hidden functions and methods will also be documented " + \
                         "(functions/methods starting with _ or __).")
+        parser.add_argument("--examples_dir", type = str, default = "_examples",
+                help = "Name of the target directory for docstring examples (qmds). " + \
+                       "Only used if action is 'examples', defaults to \"_examples\".")
         parser.add_argument("--silent", default = False, action = "store_true",
                 help = "If set, output will be suppressed.")
 
@@ -87,8 +92,8 @@ class Config:
 
     def setup(self, action, package,
               quarto_dir = "_quarto", man_dir = "man", output_dir = "_site",
-              overwrite = False, include_hidden = False, docstringstyle = "GOOGLE",
-              silent = False):
+              overwrite = False, include_hidden = False, examples_dir = "_examples",
+              docstringstyle = "GOOGLE", silent = False):
         """Config Setup
 
         `action = "init"` initializes the auto-generated documentation and will
@@ -140,7 +145,7 @@ class Config:
         # --------------------------------------------
         # Now checking validity of all required args
         # --------------------------------------------
-        action_allowed = ["init", "document"]
+        action_allowed = ["init", "document", "examples"]
         if not isinstance(self.get("action"), str):
             raise TypeError("argument `action` must be str")
         elif not self.get("action") in action_allowed:
@@ -218,6 +223,7 @@ class Config:
             res += f"    Man page dir:      {self.get('man_dir')}\n"
             res += f"    Output dir:        {self.get('output_dir')}\n"
             res += f"    Overwrite:         {self.get('overwrite')}\n"
+            res += f"    Examples dir:      {self.get('examples_dir')}\n"
             res += f"    Include hidden:    {self.get('include_hidden')}\n"
             res += f"    Docstring style:   {self.get('docstringstyle')}\n"
             return res

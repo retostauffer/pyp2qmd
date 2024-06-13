@@ -12,8 +12,12 @@ def main():
     docconv = DocConverter(config)
     if not config.get("silent"): print(docconv)
 
-    docconv.document()
-    docconv.update_quarto_yml()
+    print(config)
+    if config.get("action") == "examples":
+        docconv.examples()
+    else:
+        docconv.document()
+        docconv.update_quarto_yml()
 
 if __name__ == "__main__":
     main()
