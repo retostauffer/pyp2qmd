@@ -249,15 +249,16 @@ pyp2qmd init --package &lt;name_of_package&gt;</code></pre>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <pre><code>pyp2qmd --help</code></pre>
-<div id="e1d0bb9f" class="cell" data-execution_count="1">
+<div id="fd898409" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
 <pre><code>usage: pyp2qmd [-h] [-p PACKAGE] [--overwrite] [--quarto_dir QUARTO_DIR]
                [--man_dir MAN_DIR] [--output_dir OUTPUT_DIR]
-               [--docstringstyle DOCSTRINGSTYLE] [--include_hidden] [--silent]
+               [--docstringstyle DOCSTRINGSTYLE] [--include_hidden]
+               [--examples_dir EXAMPLES_DIR] [--silent]
                action
 
 positional arguments:
-  action                Action to perform, one of: init, document
+  action                Action to perform, one of: init, document, examples
 
 options:
   -h, --help            show this help message and exit
@@ -277,6 +278,10 @@ options:
                         Docstring type (format). Defaults to "GOOGLE".
   --include_hidden      If set, hidden functions and methods will also be
                         documented (functions/methods starting with _ or __).
+  --examples_dir EXAMPLES_DIR
+                        Name of the target directory for docstring examples
+                        (qmds). Only used if action is 'examples', defaults to
+                        "_examples".
   --silent              If set, output will be suppressed.</code></pre>
 </div>
 </div>
@@ -286,9 +291,20 @@ options:
 <section id="file-structure-created" class="level3">
 <h3 class="anchored" data-anchor-id="file-structure-created">File structure created</h3>
 <p>This will create the following structure (for <code>--package pyp2qmd</code>):</p>
-<div id="e417a524" class="cell" data-execution_count="2">
+<div id="0ab1da01" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stdout">
-<pre><code>_quarto
+<pre><code>pyp2qmd.Config Object:
+    Action:            init
+    Package:           pyp2qmd
+    Quarto dir:        /tmp/tmp_2wmemfw
+    Man page dir:      man
+    Output dir:        _site
+    Overwrite:         False
+    Examples dir:      _examples
+    Include hidden:    False
+    Docstring style:   GOOGLE
+
+_quarto
 ├── _quarto.yml
 ├── index.qmd
 ├── man
@@ -308,6 +324,9 @@ options:
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document_classes.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.document_functions.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.examples.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.examples_classes.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.examples_functions.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.get_classes.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.get_functions.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.DocConverter.DocConverter.qmd
@@ -315,19 +334,21 @@ options:
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.config_get.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.fullname.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.get.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.get_example_qmd.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.getmembers.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.isclass.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.isfunction.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.quartofile.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.signature.qmd
+│&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.write_examples_qmd.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.ManPage.ManPage.write_qmd.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.demofunctions.demofun_allfine.qmd
 │&nbsp;&nbsp; ├── pyp2qmd.demofunctions.demofun_wrong.qmd
 │&nbsp;&nbsp; └── pyp2qmd.demofunctions.demofun_wrong2.qmd
 └── pyp.scss
 
-1 directory, 36 files</code></pre>
+1 directory, 41 files</code></pre>
 </div>
 </div>
 <p>The file <code>_quarto.yml</code> contains the template for the quarto website skeleton, <code>index.qmd</code> a template of the websites entry page (home). In addition, <code>pyp.scss</code> with a series of style adjustments.</p>

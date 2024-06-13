@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>pyp2qmd – Config Setup</title>
+<title>pyp2qmd – WARNING(short_description missing)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -118,7 +118,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Config Setup</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">WARNING(short_description missing)</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -198,10 +198,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a></li>
-  <li><a href="#usage" id="toc-usage" class="nav-link" data-scroll-target="#usage">Usage</a></li>
-  <li><a href="#arguments" id="toc-arguments" class="nav-link" data-scroll-target="#arguments">Arguments</a></li>
-  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  <li><a href="#usage" id="toc-usage" class="nav-link active" data-scroll-target="#usage">Usage</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/retostauffer/pyp2qmd/issues" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -210,7 +207,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Config Setup</h1>
+<h1 class="title">WARNING(short_description missing)</h1>
 </div>
 
 
@@ -227,87 +224,10 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="description" class="level3">
-<h3 class="anchored" data-anchor-id="description">Description</h3>
-<p><code>action = "init"</code> initializes the auto-generated documentation and will automatically create the quarto website template including a <code>_quarto.yml</code> file and <code>pyp.sass</code>. Will thorw an exception one of these files already exists, except if the user allows for <code>overwrite = True</code> (take care, the current content of <code>_quarto.yml</code> will be overwritten).</p>
-<p><code>action = "document"</code> parses the python package classes and functions and will update the man pages. It will, however, not overwrite <code>_quarto.yml</code>. When used the first time, it will also initialize the output folder structure and create the required files (<code>_quarto.yml</code>, <code>pyp.sass</code>) similar to the init action.</p>
-</section>
+<p>WARNING(long_description missing)</p>
 <section id="usage" class="level3">
 <h3 class="anchored" data-anchor-id="usage">Usage</h3>
-<pre><code class="language-python">Config.setup(action, package,<br>             quarto_dir='_quarto',<br>             man_dir='man',<br>             output_dir='_site',<br>             overwrite=False, include_hidden=False,<br>             examples_dir='_examples',<br>             docstringstyle='GOOGLE',<br>             silent=False)</code></pre>
-</section>
-<section id="arguments" class="level3">
-<h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
-<ul>
-<li>
-WARNING(missing argument definition “examples_dir” in docstring)
-</li>
-</ul>
-<dl class="pyp-list param-list">
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:action">action</code><code class="argument-class">str</code>
-</dt>
-<dd>
-Action to be executed. One of <code>"init"</code> or <code>"document"</code>, see method description.
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:package">package</code><code class="argument-class">str</code>
-</dt>
-<dd>
-Name of the package which should be documented.
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:quarto_dir">quarto_dir</code><code class="argument-class">str</code>
-</dt>
-<dd>
-Output directory, defaults to <code>"_quarto"</code>.
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:man_dir">man_dir</code><code class="argument-class">str</code>
-</dt>
-<dd>
-Name of the directory for the manual pages (subfolder inside <code>quarto_dir</code>), defaults to <code>"man"</code>.
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:output_dir">output_dir</code><code class="argument-class">str</code>
-</dt>
-<dd>
-Directory for the rendered quarto website, used as <code>output-dir</code> target in <code>_quarto.yml</code>, relative to <code>quarto_dir</code>. Defaults to <code>"_site"</code>.
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:overwrite">overwrite</code><code class="argument-class">bool</code>
-</dt>
-<dd>
-Only used if <code>action = "init"</code>, see method description.
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:include_hidden">include_hidden</code><code class="argument-class">bool</code>
-</dt>
-<dd>
-If <code>False</code> (default), classes, functions, and methods starting with an underscore will not be documented (no quarto man pages will be crated). Dunder classes, functions, and methods are always excluded.
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:docstringstyle">docstringstyle</code><code class="argument-class">str</code>
-</dt>
-<dd>
-Style of the docstrings in the package, must be one of the allowed types of the <code>docstring_parser</code> package (AUTO, EPYDOC, GOOGLE, NUMPYDOC, REST), defaults to <code>"GOOGLE"</code>; not case sensitive.
-</dd>
-<dt style="white-space: nowrap; font-family: monospace; vertical-align: top">
-<code id="pyp2qmd.Config.Config.setup:silent">silent</code><code class="argument-class">bool</code>
-</dt>
-<dd>
-If <code>False</code> (default) some output will be produced when rendering the man pages. Can be specified to silence the execution.
-</dd>
-</dl>
-</section>
-<section id="raises" class="level3">
-<h3 class="anchored" data-anchor-id="raises">Raises</h3>
-<ul class="python-raises">
-<li>
-<code class="text-warning">TypeError</code>: If the inputs are not of the expected type.
-</li><li>
-<code class="text-warning">ValueError</code>: If <code>action</code> is not one of the allowed ones.
-</li></ul>
+<pre><code class="language-python">ManPage.get_example_qmd()</code></pre>
 
 
 </section>
