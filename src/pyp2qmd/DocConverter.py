@@ -313,7 +313,7 @@ class DocConverter:
 
         for name,cls in self.get_classes().items():
             if not self.config_get("silent"):
-                print(f"Create example qmd for class {name}")
+                print(f"Create man page for class {name}")
             man = ManPage(name, cls, self._config)
             self._man_created["class"][name] = man.write_qmd()
 
@@ -338,7 +338,7 @@ class DocConverter:
 
         for name,cls in self.get_classes().items():
             if not self.config_get("silent"):
-                print(f"Create man page for class {name}")
+                print(f"Create example qmd for class {name}")
             man = ManPage(name, cls, self._config)
             man.write_examples_qmd()
 
@@ -346,7 +346,7 @@ class DocConverter:
                 if not self.config_get("include_hidden") and meth.__name__.startswith("_"):
                     continue
                 if not self.config_get("silent"):
-                    print(f"   + method page for {name}")
+                    print(f"   + examples for method page for {name}")
                 parent = sub(r"\.[^.]*$", "", man.fullname())
                 m_man = ManPage(name, meth, self._config, parent = parent)
                 m_man.write_examples_qmd()
