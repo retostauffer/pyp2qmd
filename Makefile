@@ -33,6 +33,7 @@ install:
 
 # Makes use of the token/config stored in $HOME/.pypirc
 sdist:
+	-rm -rf dist
 	python setup.py sdist
 
 testpypi:

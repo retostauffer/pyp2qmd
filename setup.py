@@ -23,7 +23,8 @@ setup(
     classifiers = [
         "Development Status :: 2 - Pre-Alpha",
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GPL-2",
+        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent"
     ],
     install_requires     = ["docstring_parser", "pyyaml"],
