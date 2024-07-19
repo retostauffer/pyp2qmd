@@ -6,7 +6,7 @@
 from setuptools import setup, find_namespace_packages
 
 ISRELEASED  = False
-VERSION     = "0.1.0"
+VERSION     = "0.1.1"
 
 setup(
     name         = "pyp2qmd",
@@ -21,7 +21,7 @@ setup(
         "GitHub Issues": "https://github.com/retostauffer/pyp2qmd/issues"
     },
     classifiers = [
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

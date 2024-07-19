@@ -1,4 +1,9 @@
 
+
+# Version 0.1.1
+
+* Added return `type_name` to 'Return' on man pages if given.
+
 # Version 0.1.0
 
 * Updated version to `0.1.0`; first usable alpha version.

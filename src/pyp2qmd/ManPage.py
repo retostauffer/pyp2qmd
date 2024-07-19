@@ -322,7 +322,7 @@ class ManPage:
         if self.get("returns"):
             res += "\n\n### Return\n\n"
             if self.get("returns").type_name:
-                res += f"{self.get('returns').type_name}: "
+                res += f"<code>{self.get('returns').type_name}</code>: "
             res += f"{self._add_references(self.get('returns').description)}"
 
         # If is class, append methods
