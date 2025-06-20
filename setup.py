@@ -20,11 +20,10 @@ setup(
     project_urls = {
         "GitHub Issues": "https://github.com/retostauffer/pyp2qmd/issues"
     },
+    license = "GNU General Public License v2.0 or later",
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent"
     ],
     install_requires     = ["docstring_parser", "pyyaml"],
