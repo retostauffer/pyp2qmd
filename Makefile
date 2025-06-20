@@ -48,7 +48,11 @@ pypirelease:
 document:
 	make install
 	python make_docs/main.py # Custom 'make package documentation for this package'
-	##pyp2qmd init --package pyp2qmd --output_dir ../docs --overwrite
+
+.PHONY: docx
+docx:
+	-rm -rf _quarto
+	pyp2qmd init --package pyp2qmd --output_dir _quarto --overwrite
 
 render:
 	(cd _quarto; quarto render)

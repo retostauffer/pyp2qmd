@@ -6,7 +6,7 @@
 from setuptools import setup, find_namespace_packages
 
 ISRELEASED  = False
-VERSION     = "0.1.1"
+VERSION     = "0.1.2"
 
 setup(
     name         = "pyp2qmd",

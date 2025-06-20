@@ -380,9 +380,15 @@ class DocConverter:
         crated.
         """
 
-        n = sum([len(x) for x in self._man_created])
+        n = 0
         if not self.config_get("silent"):
-            print(f"pyp2qmd: Number of man pages created {n}")
+            print(f"pyp2qmd: Number of (main) man pages created")
+            for k,v in self._man_created.items():
+                kx = "(es):" if k == "class" else "(s):"
+                n += len(v)
+                print(f"         {k + kx:15s}   {len(v):4d}")
+            print(f"         in total:         {n:4d}")
+
         # Nothing? Do nothing
         if not self._quarto_yml_initialized or n == 0:
             return
