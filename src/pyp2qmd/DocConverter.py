@@ -92,13 +92,15 @@ class DocConverter:
                         f"`overwrite = True` may result in loss of data if the file{pl} " + \
                         "mentioned have been edited manually!")
 
-        # At all times: Make sure quarto_dir/man_dir exists.
-        self.__make_output_dirs()
-
         # Proceed. If action == 'init' create template files
         if self.config_get("action") == "init":
             self.__init_documentation()
             self._quarto_yml_initialized = True 
+        else:
+            from os.path import isdir, join
+            tmp = join(self.config_get("quarto_dir"), self.config_get("man_dir"))
+            if not isdir(tmp):
+                raise Exception("missing folder \"{tmp}\". pyp2qmd project not initialized? (check documentation for `pyp2qmd init ...`)")
 
         # Class is now ready to do what it is designed for
 
@@ -110,6 +112,9 @@ class DocConverter:
 
         # Getting package name
         pkgname = match(r"^([^\.]+)", self.__class__.__module__).group(1)
+
+        # Create required output folder(s)
+        self.__make_output_dirs()
 
         # Adding template(s)
         def pkg_file(pkgname, directory, file):
