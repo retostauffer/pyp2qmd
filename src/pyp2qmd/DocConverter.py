@@ -92,6 +92,9 @@ class DocConverter:
                         f"`overwrite = True` may result in loss of data if the file{pl} " + \
                         "mentioned have been edited manually!")
 
+        # At all times: Make sure quarto_dir/man_dir exists.
+        self.__make_output_dirs()
+
         # Proceed. If action == 'init' create template files
         if self.config_get("action") == "init":
             self.__init_documentation()
@@ -101,24 +104,10 @@ class DocConverter:
 
     def __init_documentation(self):
 
-        from os import makedirs
         from os.path import join, isdir, basename
         from shutil import copy
         from re import sub, match
-        
-        # Trying to create quarto_dir and quarto_dir/man_dir if needed
-        if not isdir(self.config_get("quarto_dir")):
-            try:
-                makedirs(self.config_get("quarto_dir"))
-            except Exception as e:
-                raise Exception(f"cannot create {self.config_get('quarto_dir')}: {e}")
-        man_dir = join(self.config_get("quarto_dir"), self.config_get("man_dir"))
-        if not isdir(man_dir):
-            try:
-                makedirs(man_dir)
-            except Exception as e:
-                raise Exception(f"cannot create {man_dir}: {e}")
-         
+
         # Getting package name
         pkgname = match(r"^([^\.]+)", self.__class__.__module__).group(1)
 
@@ -163,6 +152,24 @@ class DocConverter:
         src = pkg_file(pkgname, "templates", "pyp.scss")
         copy(src, join(self.config_get("quarto_dir"), "pyp.scss"))
 
+
+    def __make_output_dirs(self):
+
+        from os import makedirs
+        from os.path import join, isdir, basename
+
+        # Trying to create quarto_dir and quarto_dir/man_dir if needed
+        if not isdir(self.config_get("quarto_dir")):
+            try:
+                makedirs(self.config_get("quarto_dir"))
+            except Exception as e:
+                raise Exception(f"cannot create {self.config_get('quarto_dir')}: {e}")
+        man_dir = join(self.config_get("quarto_dir"), self.config_get("man_dir"))
+        if not isdir(man_dir):
+            try:
+                makedirs(man_dir)
+            except Exception as e:
+                raise Exception(f"cannot create {man_dir}: {e}")
 
 
 
