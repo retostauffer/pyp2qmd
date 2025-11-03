@@ -9,8 +9,9 @@ test:
 
 
 venv: requirements.txt
-	virtualenv venv
-	venv/bin/pip install -r requirements.txt
+	python3 -m virtualenv .venv
+	.venv/bin/pip install -r requirements.txt
+	.venv/bin/pip install -r requirements_devel.txt
 
 clean:
 	-rm -rf _quarto/man
@@ -24,24 +25,28 @@ distclean:
 .PHONY: init
 init:
 	make clean
-	venv/bin/python makedocs.py init -p colorspace --overwrite
+	.venv/bin/python makedocs.py init -p colorspace --overwrite
 
 install:
 	@echo "********* REMOVE AND REINSTALL PYTHON PACKAGE *********"
 	python setup.py clean --all && pip install -e .
 
 
-# Makes use of the token/config stored in $HOME/.pypirc
-sdist:
-	-rm -rf dist
-	python setup.py sdist
+# Prepare package for PyPI submission
+.PHONY: build
+build: clean
+	-rm -rf build dist *.egg-info
+	python -m build
 
-testpypi:
-	make sdist
+# Rules to push releases to PyPI test and PyPI.
+# Makes use of the token/config stored in $HOME/.pypirc
+
+testpypi: build
+	twine check dist/*
 	twine upload --verbose --repository testpypi dist/*
 
-pypirelease:
-	make sdist
+pypirelease: build
+	twine check dist/*
 	twine upload --verbose --repository pypi dist/*
 
 .PHONY: document

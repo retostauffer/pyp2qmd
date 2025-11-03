@@ -7,4 +7,3 @@ matplotlib
 docstring_parser
 pyyaml
 imageio
-
